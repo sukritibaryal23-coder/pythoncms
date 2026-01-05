@@ -67,7 +67,4 @@ def article_bulk_action(request):
 
     return redirect('article_list')
     
-def check_slug(request):
-    slug = request.GET.get("slug", "")
-    exists = Article.objects.filter(slug=slug).exists()
-    return JsonResponse({"exists": exists})
+

@@ -3,7 +3,7 @@
 {% block content %}
 {{ form.media }}
 
-<a href="{% url 'article_list' %}" class="btn btn-primary">Back</a>
+<a href="{% url 'article_list' %}" class="btn btn-primary">Back</a><br><br>
 <h3>{% if form.instance.pk %}Edit Article – {{ form.instance.title }}{% else %}Add Article{% endif %}</h3>
 
 <form method="post" enctype="multipart/form-data">
@@ -21,9 +21,29 @@
 
     {{ form.content.label_tag }}
     {{ form.content }}<br><br>
+    <button type="button" id="readmore-btn" class="btn btn-warning mb-3">
+    Insert Read More
+    </button><br> <br>
+
 
     {{ form.image.label_tag }}
-    {{ form.image }}<br>
+    {{ form.image }}<br><br>
+
+    {{ form.homepage.label_tag }}
+    {{ form.homepage }}<br><br>
+
+    {{ form.status.label_tag }}
+    {{ form.status }}<br><br>
+
+    {{ form.meta_title.label_tag }}
+    {{ form.meta_title }}<br><br>
+
+    {{ form.meta_keywords.label_tag }}
+    {{ form.meta_keywords }}<br><br>
+
+    {{ form.meta_description.label_tag }}
+    {{ form.meta_description }}<br><br>
+
 
     <!-- IMAGE PREVIEW RIGHT BELOW THE UPLOAD -->
     {% if form.instance and form.instance.image %}
@@ -97,5 +117,27 @@
         }
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.getElementById("readmore-btn").addEventListener("click", function () {
+
+            // CKEditor 4 instance
+            const editor = CKEDITOR.instances['id_content'];
+
+            if (!editor) {
+                alert("Editor not ready");
+                return;
+            }
+
+            // Insert Read More marker
+            editor.insertHtml('<hr class="read-more" />');
+
+        });
+
+    });
+</script>
+
+
 
 {% endblock %}

@@ -1,6 +1,8 @@
 from django import forms
 from .models import Article
-from django_ckeditor_5.widgets import CKEditor5Widget
+from ckeditor.widgets import CKEditorWidget  # CKEditor 4 widget
+# or if you use upload
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 class ArticleForm(forms.ModelForm):
     class Meta:
@@ -18,8 +20,9 @@ class ArticleForm(forms.ModelForm):
             "meta_description",
         ]
         widgets = {
-            "content": CKEditor5Widget(config_name="default")
+            "content": CKEditorUploadingWidget(config_name="default")
         }
+    
     def check_slug(request):
         slug = request.GET.get("slug", "")
         article_id = request.GET.get("id")  # get current article ID if editing
