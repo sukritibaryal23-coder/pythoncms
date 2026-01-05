@@ -17,6 +17,7 @@ class Article(models.Model):
     meta_keywords = models.CharField(max_length=250, blank=True)
     meta_description = models.CharField(max_length=160, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
 
 
     def save(self, *args, **kwargs):

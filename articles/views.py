@@ -41,6 +41,13 @@ def article_toggle_status(request, id):
     messages.success(request, "Status Changed.")
     return redirect('article_list')
 
+def article_homepage(request, id):
+    article = get_object_or_404(Article, id=id)
+    article.homepage = not article.homepage
+    article.save()
+    messages.success(request, "Homepage Status Changed.")
+    return redirect('article_list')
+
 
 def article_delete(request, id):  # <-- add "id" here
     from django.shortcuts import get_object_or_404, redirect

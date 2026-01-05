@@ -15,4 +15,7 @@ urlpatterns = [
     path('toggle-status/<int:id>/', views.article_toggle_status, name='article_toggle_status'),
 
     path("check-slug/", views.check_slug, name="check_slug"),
+
+    path("homepage/<int:id>/", views.article_homepage, name="article_homepage"),
+    
 ]
