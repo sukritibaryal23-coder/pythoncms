@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Articles List</h3>
+        <a href="{% url 'article_add' %}" class="btn btn-primary">Add New</a>
+    </div>
+
+    <!-- Bulk actions form -->
+    <form method="post" action="{% url 'article_bulk_action' %}">
+        {% csrf_token %}
+        <div class="mb-2">
+            <button type="submit" name="action" value="publish" class="btn btn-success btn-sm">Status</button>
+            <!-- <button type="submit" name="action" value="unpublish" class="btn btn-secondary btn-sm">Unpublish Selected</button> -->
+            <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm" 
+            onclick="return confirm('Are you sure you want to delete selected articles?');">Delete</button>
+        </div>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in articles %}
+                <tr>
+                    <td><input type="checkbox" name="selected_articles" value="{{ article.id }}"></td>
+                    <td>{{ article.title }}</td>
+                    <td>
+                        {% if article.status %}
+                            <span class="badge bg-success">Published</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Unpublished</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'article_edit' article.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        {% if article.status %}
+                            <a href="{% url 'article_toggle_status' article.id %}" class="btn btn-sm btn-secondary">Unpublish</a>
+                        {% else %}
+                            <a href="{% url 'article_toggle_status' article.id %}" class="btn btn-sm btn-success">Publish</a>
+                        {% endif %}
+                        <a href="{% url 'article_delete' article.id %}" class="btn btn-sm btn-danger" 
+                        onclick="return confirm('Are you sure you want to delete this article?');">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No articles found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script>
+    // Select/Deselect all checkboxes
+    document.getElementById('select-all').addEventListener('click', function(){
+        let checkboxes = document.querySelectorAll('input[name="selected_articles"]');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
+
+{% endblock %}

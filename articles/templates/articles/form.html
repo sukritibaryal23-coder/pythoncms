@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{{ form.media }}
+
+<a href="{% url 'article_list' %}" class="btn btn-primary">Back</a>
+<h3>{% if form.instance.pk %}Edit Article – {{ form.instance.title }}{% else %}Add Article{% endif %}</h3>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {{ form.title.label_tag }}
+    {{ form.title }}<br><br>
+
+    {{ form.sub_title.label_tag }}
+    {{ form.sub_title }}<br><br>
+
+    {{ form.slug.label_tag }}
+    {{ form.slug }}<br>
+    <span id="slug-warning" style="color:red; display:none;">Slug already exists!</span><br>
+
+    {{ form.content.label_tag }}
+    {{ form.content }}<br><br>
+
+    {{ form.image.label_tag }}
+    {{ form.image }}<br>
+
+    <!-- IMAGE PREVIEW RIGHT BELOW THE UPLOAD -->
+    {% if form.instance and form.instance.image %}
+        <img id="preview" src="{{ form.instance.image.url }}" width="200" style="margin-top:10px; display:block;" />
+    {% else %}
+        <img id="preview" src="" width="200" style="display:none; margin-top:10px;" />
+    {% endif %}
+
+    <br>
+    <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+<script>
+    // References
+    const titleInput = document.getElementById("id_title");
+    const slugInput = document.getElementById("id_slug");
+    const warning = document.getElementById("slug-warning");
+
+    // Get current article ID if editing, empty for Add
+    const articleId = "{{ form.instance.pk|default:'' }}";
+
+    // AUTO-GENERATE SLUG FROM TITLE
+    titleInput.addEventListener("input", function() {
+        let slug = this.value
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        slugInput.value = slug;
+
+        // Immediately check slug after generating
+        checkSlug(slug);
+    });
+
+    // CHECK SLUG WHEN TYPING MANUALLY
+    slugInput.addEventListener("input", function() {
+        checkSlug(this.value);
+    });
+
+    function checkSlug(slug) {
+        if (!slug) {
+            warning.style.display = "none";
+            return;
+        }
+
+        // Include article ID for edit page
+        let url = `/articles/check-slug/?slug=${slug}`;
+        if (articleId) {
+            url += `&id=${articleId}`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                warning.style.display = data.exists ? "block" : "none";
+            });
+    }
+
+    // LIVE IMAGE PREVIEW
+    const fileInput = document.getElementById('id_image');
+    const preview = document.getElementById('preview');
+
+    fileInput.addEventListener('change', function(event){
+        const [file] = fileInput.files;
+        if(file){
+            preview.src = URL.createObjectURL(file); // display selected image
+            preview.style.display = 'block';         // make visible
+        } else {
+            preview.src = "";
+            preview.style.display = 'none';
+        }
+    });
+</script>
+
+{% endblock %}
