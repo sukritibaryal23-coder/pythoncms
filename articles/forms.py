@@ -22,7 +22,7 @@ class ArticleForm(forms.ModelForm):
         widgets = {
             "content": CKEditorUploadingWidget(config_name="default")
         }
-    
+        
     def check_slug(request):
         slug = request.GET.get("slug", "")
         article_id = request.GET.get("id")  # get current article ID if editing

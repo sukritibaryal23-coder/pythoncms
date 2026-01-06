@@ -23,8 +23,11 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('articles/', include('articles.urls')),
-    path('', RedirectView.as_view(url='/articles/', permanent=False)),
+    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path("dashboard/", include("dashboard.urls")),
+    path("recycle-bin/", include("recyclebin.urls")),
+
 ]
 
 if settings.DEBUG:

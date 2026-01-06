@@ -11,8 +11,14 @@ def check_slug(request):
     return JsonResponse({"exists": exists})
 
 def article_list(request):
-    articles = Article.objects.all().order_by("-id")
-    return render(request, "articles/list.html", {"articles": articles})
+    query = request.GET.get("q", "")  # get search query
+    if query:
+        articles = Article.objects.filter(
+            title__icontains=query
+        ).order_by("-id")
+    else:
+        articles = Article.objects.all().order_by("-id")
+    return render(request, "articles/list.html", {"articles": articles, "query": query})
 
 
 def article_form(request, id=None):

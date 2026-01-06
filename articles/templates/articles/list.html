@@ -5,7 +5,12 @@
         <h3>Articles List</h3>
         <a href="{% url 'article_add' %}" class="btn btn-primary">Add New</a>
     </div>
-
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search articles..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
     <!-- Bulk actions form -->
     <form method="post" action="{% url 'article_bulk_action' %}">
         {% csrf_token %}
