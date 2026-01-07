@@ -70,6 +70,7 @@ def article_delete(request, id):  # <-- add "id" here
     from .models import Article
 
     article = get_object_or_404(Article, id=id)
+    
     article.delete()
     messages.success(request, "Deleted Successfully.")
     return redirect('article_list')
@@ -85,7 +86,8 @@ def article_bulk_action(request):
             articles.update(status=~F("status"))
             messages.success(request, "Status Changed.")
         elif action == "delete":
-            articles.delete()
+            for article in articles:
+                articles.delete()
             messages.success(request, "Deleted Successfully.")
 
     return redirect('article_list')

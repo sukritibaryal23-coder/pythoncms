@@ -5,6 +5,7 @@ from ckeditor.widgets import CKEditorWidget  # CKEditor 4 widget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 class ArticleForm(forms.ModelForm):
+    
     class Meta:
         model = Article
         fields = [
