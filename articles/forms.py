@@ -20,7 +20,8 @@ class ArticleForm(forms.ModelForm):
             "meta_description",
         ]
         widgets = {
-            "content": CKEditorUploadingWidget(config_name="default")
+            "content": CKEditorUploadingWidget(config_name="default"),
+            "image": forms.FileInput(),
         }
         
     def check_slug(request):

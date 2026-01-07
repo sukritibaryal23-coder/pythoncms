@@ -42,17 +42,27 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h4>CMS Python</h4>
-        <ul class="nav flex-column">
-            {% for link in sidebar_links %}
-                <li class="nav-item">
-                    <a href="{{ link.url }}" class="nav-link {% if request.path.startswith(link.url) %}active{% endif %}">
-                        {{ link.name }}
-                    </a>
-                </li>
-            {% empty %}
-                <li class="nav-item text-muted">No apps available</li>
-            {% endfor %}
+       <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'article_list' %}active{% endif %}" 
+                href="{% url 'article_list' %}">
+                    Articles
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'recycle_bin' %}active{% endif %}" 
+                href="{% url 'recycle_bin' %}">
+                    Recycle Bin
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                href="{% url 'dashboard' %}">
+                    Dashboard
+                </a>
+            </li>
         </ul>
+
 
 
     </div>

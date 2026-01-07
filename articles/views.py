@@ -4,6 +4,7 @@ from .models import Article
 from .forms import ArticleForm
 from django.db.models import F
 from django.contrib import messages
+from django.core.paginator import Paginator
 
 def check_slug(request):
     slug = request.GET.get("slug", "")
@@ -18,7 +19,16 @@ def article_list(request):
         ).order_by("-id")
     else:
         articles = Article.objects.all().order_by("-id")
-    return render(request, "articles/list.html", {"articles": articles, "query": query})
+
+    paginator = Paginator(articles, 10)  # 10 articles per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "articles/list.html", {
+        "articles": page_obj,  # page object contains current page items
+        "query": query,
+        "page_obj": page_obj
+    })
 
 
 def article_form(request, id=None):

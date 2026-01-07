@@ -1,4 +1,3 @@
-<!-- this works -->
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
@@ -26,45 +25,39 @@
     Read More
     </button><br> <br>
 
-<div class="mb-3">
-    <!-- Label -->
+
+       <div class="mb-3">
     {{ form.image.label_tag }}
 
-    <!-- Default file input (Choose File button) -->
-    <div id="file-input-container" {% if form.instance and form.instance.image %}style="display:none;"{% endif %}>
+    <!-- FILE INPUT -->
+    <div id="file-input-container">
         {{ form.image }}
     </div>
 
-    <!-- IMAGE PATH BELOW BUTTON -->
-    <div id="image-path" style="margin-top: 5px; font-size: 0.9rem; color: #555;">
-        {% if form.instance and form.instance.image %}
-            Path: {{ form.instance.image.url }}
-        {% endif %}
-    </div>
+    <!-- IMAGE PATH -->
+    <div id="image-path" style="font-size: 0.9rem; color:#555; margin-top:4px;"></div>
 
-    <!-- IMAGE PREVIEW WITH RED × BUTTON -->
-    <div id="image-preview-container" style="position: relative; display: inline-block; margin-top: 5px;">
-        <img id="preview" width="200" style="display: {% if form.instance and form.instance.image %}block{% else %}none{% endif %}; border-radius:8px;" 
-             src="{% if form.instance and form.instance.image %}{{ form.instance.image.url }}{% endif %}" />
+    <!-- IMAGE PREVIEW + RED X -->
+    <div id="image-preview-container" style="position:relative; display:inline-block; margin-top:8px;">
+        <img id="preview" width="200" style="display:none; border-radius:8px;" />
 
-        <!-- Red × button -->
-        <button type="button" id="remove-image-btn" style="
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: {% if form.instance and form.instance.image %}flex{% else %}none{% endif %};
-            align-items: center;
-            justify-content: center;
-        ">×</button>
+        <!-- RED REMOVE BUTTON (ALWAYS EXISTS) -->
+        <button type="button" id="remove-image-btn"
+            style="
+                position:absolute;
+                top:-10px;
+                right:-10px;
+                background:#dc3545;
+                color:white;
+                border:none;
+                border-radius:50%;
+                width:26px;
+                height:26px;
+                font-size:18px;
+                font-weight:bold;
+                cursor:pointer;
+                display:none;
+            ">×</button>
     </div>
 </div>
 
@@ -174,62 +167,52 @@
 </script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const previewImg = document.getElementById("preview");
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.querySelector('input[type="file"]');
+    const preview = document.getElementById("preview");
     const removeBtn = document.getElementById("remove-image-btn");
-    const fileInput = document.getElementById("id_image");
+    const pathDiv = document.getElementById("image-path");
     const fileInputContainer = document.getElementById("file-input-container");
-    const imagePathDiv = document.getElementById("image-path");
+    const previewContainer = document.getElementById("image-preview-container");
 
-    // Hidden input to mark deletion
-    let deleteInput = document.createElement("input");
-    deleteInput.type = "hidden";
-    deleteInput.name = "remove_image";
-    deleteInput.value = "0";
-    if(previewImg?.parentElement) previewImg.parentElement.appendChild(deleteInput);
+    const hasImage = previewContainer.dataset.hasImage === "1";
+    const imageUrl = previewContainer.dataset.imageUrl;
 
-    // Update path helper
-    function updatePath(path) {
-        if(path){
-            imagePathDiv.textContent = "Path: " + path;
-        } else {
-            imagePathDiv.textContent = "";
-        }
+    // EDIT MODE
+    if (hasImage && imageUrl) {
+        preview.src = imageUrl;
+        preview.style.display = "block";
+        removeBtn.style.display = "flex";
+        fileInputContainer.style.display = "none";
+        pathDiv.innerText = "Path: " + imageUrl;
     }
 
-    // Remove image click
-    if(removeBtn){
-        removeBtn.addEventListener("click", function() {
-            previewImg.style.display = "none";       // hide preview
-            fileInput.value = "";                     // clear file input
-            deleteInput.value = "1";                 // mark for deletion
-            removeBtn.style.display = "none";        // hide × button
-            updatePath("");                           // clear path
-            fileInputContainer.style.display = "block"; // show choose file button
-        });
-    }
+    // FILE SELECT
+    input.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
 
-    // File input change (new selection)
-    if(fileInput){
-        fileInput.addEventListener("change", function() {
-            const file = fileInput.files[0];
-            if(file){
-                previewImg.src = URL.createObjectURL(file);
-                previewImg.style.display = "block";
-                removeBtn.style.display = "flex";
-                deleteInput.value = "0";  // user added new file
-                updatePath(file.name);    // show file name
-                fileInputContainer.style.display = "none"; // hide choose file button
-            } else {
-                previewImg.style.display = "none";
-                removeBtn.style.display = "none";
-                updatePath("");
-                fileInputContainer.style.display = "block"; // show button
-            }
-        });
-    }
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+        removeBtn.style.display = "flex";
+        fileInputContainer.style.display = "none";
+        pathDiv.innerText = "Path: " + file.name;
+    });
+
+    // REMOVE IMAGE
+    removeBtn.addEventListener("click", function () {
+        input.value = "";
+        preview.src = "";
+        preview.style.display = "none";
+        removeBtn.style.display = "none";
+        fileInputContainer.style.display = "block";
+        pathDiv.innerText = "";
+    });
 });
 </script>
+
+
+
 
 
 {% endblock %}
