@@ -7,29 +7,51 @@
 <table class="table table-striped table-hover">
     <thead class="table-dark">
         <tr>
+            <th><input type="checkbox" id="select-all"></th>
             <th>Title</th>
+            <th>Model</th>
             <th>Deleted At</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
-        {% for article in deleted_articles %}
+        {% for item in deleted_items %}
         <tr>
-            <td>{{ article.title }}</td>
-            <td>{{ article.deleted_at|default:"-" }}</td>
             <td>
-                <a class="btn btn-sm btn-success" href="{% url 'recycle_restore' 'article' article.pk %}"><i class="bi bi-arrow-clockwise"></i>
-</a>
-                <a class="btn btn-sm btn-danger" href="{% url 'recycle_hard_delete' 'article' article.pk %}"><i class="bi bi-trash"></i>
-</a>
+                <input type="checkbox" name="selected_items" value="{{ item.model }}:{{ item.id }}">
+            </td>
+
+            <td>
+                {{ item.title }}
+            </td>   
+            <td>
+                {{ item.model|title }}
+        
+            </td>
+
+            <td>{{ item.deleted_at|default:"-" }}</td>
+
+            <td>
+                <a class="btn btn-sm btn-success"
+                href="{% url 'recycle_restore' item.model item.id %}">
+                    <i class="bi bi-arrow-clockwise"onclick="return confirm('Are you sure you want to restore selected?');"></i>
+                </a>
+
+                <a class="btn btn-sm btn-danger"
+                href="{% url 'recycle_hard_delete' item.model item.id %}" onclick="return confirm('Are you sure you want to delete selected?');">
+                    <i class="bi bi-trash"></i>
+                </a>
             </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="3" class="text-center">No deleted articles</td>
+            <td colspan="4" class="text-center text-muted">
+                Recycle bin is empty
+            </td>
         </tr>
         {% endfor %}
-    </tbody>
+        </tbody>
+
 </table>
 
 {% endblock %}

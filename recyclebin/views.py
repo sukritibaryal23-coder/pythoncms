@@ -1,31 +1,53 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from articles.models import Article
+from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .model_registry import RECYCLE_MODELS
 
 def recycle_bin(request):
-    deleted_articles = Article.all_objects.filter(is_deleted=True)
-    return render(request, "recyclebin/list.html", {"deleted_articles": deleted_articles})
+    deleted_items = []
+
+    for key, config in RECYCLE_MODELS.items():
+        model = config["model"]
+        title_field = config["title_field"]
+
+        queryset = model.all_objects.filter(is_deleted=True)
+
+        for obj in queryset:
+            deleted_items.append({
+                "id": obj.pk,
+                "title": getattr(obj, title_field),
+                "deleted_at": obj.deleted_at,
+                "model": key,
+            })
+
+    return render(request, "recyclebin/list.html", {
+        "deleted_items": deleted_items
+    })
 
 def restore(request, model, pk):
-    model_map = {
-        "article": Article,
-    }
-    obj = get_object_or_404(model_map[model].all_objects, pk=pk)
+    config = RECYCLE_MODELS.get(model)
+    if not config:
+        return redirect("recycle_bin")
+
+    ModelClass = config["model"]
+    obj = get_object_or_404(ModelClass.all_objects, pk=pk)
+
     obj.restore()
     return redirect("recycle_bin")
 
 def hard_delete(request, model, pk):
-    model_map = {
-        "article": Article,
-    }
-    
-    obj = get_object_or_404(model_map[model].all_objects, pk=pk)
+    config = RECYCLE_MODELS.get(model)
+    if not config:
+        return redirect("recycle_bin")
 
-    # Delete the image file if it exists
-    if obj.image:  # check instance's image
-        obj.image.delete(save=False)  # delete the file from storage
+    ModelClass = config["model"]
+    obj = get_object_or_404(ModelClass.all_objects, pk=pk)
 
-    # Hard delete the object from database
+    # Delete image/file if it exists
+    if hasattr(obj, "image") and obj.image:
+        obj.image.delete(save=False)
+
     obj.hard_delete()
-    
     return redirect("recycle_bin")
+
 

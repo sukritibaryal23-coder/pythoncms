@@ -77,7 +77,7 @@ def article_delete(request, id):  # <-- add "id" here
     article = get_object_or_404(Article, id=id)
     
     article.delete()
-    messages.success(request, "Deleted Successfully.")
+    messages.success(request, "Moved to Recycle Bin.")
     return redirect('article_list')
 
 
@@ -93,7 +93,7 @@ def article_bulk_action(request):
         elif action == "delete":
             for article in articles:
                 article.delete()
-            messages.success(request, "Deleted Successfully.")
+            messages.success(request, "Moved to Recycle Bin.")
 
     return redirect('article_list')
     
