@@ -144,3 +144,8 @@ CKEDITOR_CONFIGS = {
         ]),
     },
 }
+# Tell Django where your login page is
+LOGIN_URL = '/core/login/'
+
+# Optional: where to redirect after login
+LOGIN_REDIRECT_URL = '/dashboard/'  # or wherever you want after login

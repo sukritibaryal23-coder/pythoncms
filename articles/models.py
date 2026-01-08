@@ -18,6 +18,7 @@ class Article(SoftDeleteModel):
     meta_keywords = models.CharField(max_length=250, blank=True)
     meta_description = models.CharField(max_length=160, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    position = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -26,4 +27,7 @@ class Article(SoftDeleteModel):
         super().save(*args, **kwargs)
     def __str__(self):
         return str(self.title or "")
+    
+    class Meta:
+        ordering = ['position']
 

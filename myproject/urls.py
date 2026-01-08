@@ -27,6 +27,8 @@ urlpatterns = [
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path("dashboard/", include("dashboard.urls")),
     path("recycle-bin/", include("recyclebin.urls")),
+    path("core/", include("core.urls")),
+
 
 ]
 

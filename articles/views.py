@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+import json
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import Article
 from .forms import ArticleForm
@@ -16,9 +18,12 @@ def article_list(request):
     if query:
         articles = Article.objects.filter(
             title__icontains=query
-        ).order_by("-id")
+        )
     else:
         articles = Article.objects.all().order_by("-id")
+
+    # Order by position for drag-and-drop sorting
+    articles = articles.order_by('position')
 
     paginator = Paginator(articles, 10)  # 10 articles per page
     page_number = request.GET.get('page')
@@ -87,9 +92,18 @@ def article_bulk_action(request):
             messages.success(request, "Status Changed.")
         elif action == "delete":
             for article in articles:
-                articles.delete()
+                article.delete()
             messages.success(request, "Deleted Successfully.")
 
     return redirect('article_list')
     
 
+@csrf_exempt
+def articles_reorder(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        for item in data['order']:
+            Article.objects.filter(id=item['id']).update(position=item['position'])
+        return JsonResponse({"status": "ok","message":"sorted successfully"})
+        
+    return JsonResponse({"status": "fail"}, status=400)

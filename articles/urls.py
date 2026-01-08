@@ -18,5 +18,7 @@ urlpatterns = [
     path("check-slug/", views.check_slug, name="check_slug"),
 
     path("homepage/<int:id>/", views.article_homepage, name="article_homepage"),
+
+    path("reorder/", views.articles_reorder, name="articles_reorder"),
     
 ]
