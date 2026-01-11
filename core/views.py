@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LogoutView
-
+from django.db.models import F
 from .forms import UserForm
 
 # List users
@@ -62,3 +62,20 @@ def user_toggle_status(request, id):
 class CustomLogoutView(LogoutView):
     http_method_names = ['get', 'post']  # allow GET and POST
     next_page = 'core:login'
+
+@login_required
+def user_bulk_action(request):
+    if request.method == "POST":
+        action = request.POST.get("action")
+        selected_ids = request.POST.getlist("selected_user")
+        users = User.objects.filter(id__in=selected_ids)
+
+        if action == "publish":
+            users.update(is_active=~F("is_active"))
+            messages.success(request, "Status Changed.")
+        elif action == "delete":
+            for user in users:
+                user.delete()
+            messages.success(request, "Deleted Successfully.")
+
+    return redirect('core:user_list')

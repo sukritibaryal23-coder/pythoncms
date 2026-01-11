@@ -8,32 +8,66 @@ from django.db.models import F
 from django.contrib import messages
 from django.core.paginator import Paginator
 
+
 def check_slug(request):
     slug = request.GET.get("slug", "")
     exists = Article.objects.filter(slug=slug).exists()
     return JsonResponse({"exists": exists})
 
+
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+
 def article_list(request):
-    query = request.GET.get("q", "")  # get search query
+    query = request.GET.get("q", "")
+    per_page = request.GET.get("per_page", "10")
+
+    # BASE QUERYSET
+    articles = Article.objects.all()
+
+    # SEARCH FILTER
     if query:
-        articles = Article.objects.filter(
-            title__icontains=query
+        articles = articles.filter(title__icontains=query)
+
+    # DRAG & DROP ORDER
+    articles = articles.order_by("position")
+
+    # =========================
+    # AJAX LIVE SEARCH RESPONSE
+    # =========================
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        if per_page != "all":
+            per_page = int(per_page)
+            paginator = Paginator(articles, per_page)
+            page_number = request.GET.get("page")
+            articles = paginator.get_page(page_number)
+
+        html = render_to_string(
+            "articles/_article_rows.html",
+            {"articles": articles},
+            request=request
         )
+        return JsonResponse({"html": html})
+
+    # =========================
+    # NORMAL PAGE LOAD
+    # =========================
+    if per_page == "all":
+        page_obj = articles
     else:
-        articles = Article.objects.all().order_by("-id")
-
-    # Order by position for drag-and-drop sorting
-    articles = articles.order_by('position')
-
-    paginator = Paginator(articles, 10)  # 10 articles per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+        per_page = int(per_page)
+        paginator = Paginator(articles, per_page)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
 
     return render(request, "articles/list.html", {
-        "articles": page_obj,  # page object contains current page items
+        "articles": page_obj,
+        "page_obj": page_obj if per_page != "all" else None,
         "query": query,
-        "page_obj": page_obj
+        "per_page": per_page,
     })
+
 
 
 def article_form(request, id=None):
@@ -44,6 +78,10 @@ def article_form(request, id=None):
     if request.method == "POST":
             form = ArticleForm(request.POST, request.FILES, instance=article)
             if form.is_valid():
+                if request.POST.get("delete_image") == "1":
+                    if article and article.image:
+                        article.image.delete(save=False)
+                        article.image = None
                 form.save()
                 messages.success(request, "Article saved successfully.")
                 return redirect("article_list")
@@ -77,7 +115,7 @@ def article_delete(request, id):  # <-- add "id" here
     article = get_object_or_404(Article, id=id)
     
     article.delete()
-    messages.success(request, "Moved to Recycle Bin.")
+    messages.success(request, "Deleted Successfully.")
     return redirect('article_list')
 
 
@@ -93,7 +131,7 @@ def article_bulk_action(request):
         elif action == "delete":
             for article in articles:
                 article.delete()
-            messages.success(request, "Moved to Recycle Bin.")
+            messages.success(request, "Deleted Successfully.")
 
     return redirect('article_list')
     
@@ -102,8 +140,11 @@ def article_bulk_action(request):
 def articles_reorder(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        for item in data['order']:
-            Article.objects.filter(id=item['id']).update(position=item['position'])
-        return JsonResponse({"status": "ok","message":"sorted successfully"})
-        
+
+        # data['order'] is a list of article IDs
+        for position, article_id in enumerate(data['order'], start=1):
+            Article.objects.filter(id=article_id).update(position=position)
+
+        return JsonResponse({"status": "ok", "message": "sorted successfully"})
+
     return JsonResponse({"status": "fail"}, status=400)

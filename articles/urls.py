@@ -19,6 +19,6 @@ urlpatterns = [
 
     path("homepage/<int:id>/", views.article_homepage, name="article_homepage"),
 
-    path("reorder/", views.articles_reorder, name="articles_reorder"),
+    path("reorder/", views.articles_reorder, name="article_reorder"),
     
 ]

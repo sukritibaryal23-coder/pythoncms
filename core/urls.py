@@ -17,5 +17,6 @@ urlpatterns = [
     path("users/delete/<int:pk>/", views.delete_user, name="delete_user"),
     path("logout/", LogoutView.as_view(next_page="core:login"), name="logout"),
     path('users/toggle-status/<int:id>/', views.user_toggle_status, name='user_toggle_status'),
+     path('users/bulk-action/', views.user_bulk_action, name='user_bulk_action'),
 
 ]

@@ -53,5 +53,11 @@
         </tbody>
 
 </table>
-
+<script>
+    // Select/Deselect all checkboxes
+    document.getElementById('select-all').addEventListener('click', function(){
+        let checkboxes = document.querySelectorAll('input[name="selected_articles"]');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
 {% endblock %}

@@ -9,26 +9,26 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     
-    {{ form.title.label_tag }}
+    {{ form.title.label_tag }}<br>
     {{ form.title }}<br><br>
 
-    {{ form.sub_title.label_tag }}
+    {{ form.sub_title.label_tag }}<br>
     {{ form.sub_title }}<br><br>
 
-    {{ form.slug.label_tag }}
+    {{ form.slug.label_tag }}<br>
     {{ form.slug }}<br>
     <span id="slug-warning" style="color:red; display:none;">Slug already exists!</span><br>
 
-    {{ form.content.label_tag }}
+    {{ form.content.label_tag }}<br>
     {{ form.content }}<br><br>
     <button type="button" id="readmore-btn" class="btn btn-warning mb-3">
     Read More
     </button><br> <br>
 
-
+    <input type="hidden" name="delete_image" id="delete-image-flag" value="0">
     <div class="mb-3">
     {{ form.image.label_tag }}
-
+       
     <!-- Default file input -->
     <div id="file-input-container" {% if form.instance and form.instance.image %}style="display:none;"{% endif %}>
         {{ form.image }}
@@ -169,11 +169,43 @@
 
             // Insert Read More marker
             editor.insertHtml('<hr class="read-more" />');
+            function insertReadMore(editor) {
+                const content = editor.getData();
+
+                if (content.includes('class="read-more"')) {
+                    alert("You can only add one Read More line.");
+                    return;
+                }
+
+                editor.insertHtml('<hr class="read-more" />');
+            }
 
         });
 
     });
 </script>
+<script>
+CKEDITOR.on('instanceReady', function (evt) {
+    const editor = evt.editor;
+
+    editor.addCommand('insertReadMore', {
+        exec: function (editor) {
+            if (editor.getData().includes('class="read-more"')) {
+                alert('Only one Read More allowed.');
+                return;
+            }
+            editor.insertHtml('<hr class="read-more" />');
+        }
+    });
+
+    editor.ui.addButton('ReadMore', {
+        label: 'Read More',
+        command: 'insertReadMore',
+        toolbar: 'insert'
+    });
+});
+</script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -182,24 +214,32 @@ document.addEventListener("DOMContentLoaded", function() {
     const fileInputContainer = document.getElementById("file-input-container");
     const imagePath = document.getElementById("image-path");
     const fileInput = fileInputContainer.querySelector("input[type=file]");
+    const deleteFlag = document.getElementById("delete-image-flag"); // 🔹 define the hidden input
 
     if (removeBtn) {
-        removeBtn.addEventListener("click", function() {
+        removeBtn.addEventListener("click", function () {
+            // Hide preview and remove button
             preview.style.display = "none";
             removeBtn.style.display = "none";
+
+            // Show file input again
             fileInputContainer.style.display = "block";
-            imagePath.textContent = ""; // remove path
-            if(fileInput) {
-                fileInput.value = ""; // clear input
-            }
+
+            // Clear file input and image path
+            if (fileInput) fileInput.value = "";
+            imagePath.textContent = "";
+
+            // 🔴 Set delete flag to 1 so Django deletes the image
+            if (deleteFlag) deleteFlag.value = "1";
         });
     }
 
-    // Optional: live preview for newly selected file
-    if(fileInput) {
+    // Live preview for newly selected file
+    if (fileInput) {
         fileInput.addEventListener("change", function() {
             const file = this.files[0];
-            if(file) {
+            if (file) {
+                // Show preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;
@@ -207,14 +247,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     removeBtn.style.display = "flex";
                     fileInputContainer.style.display = "none";
                     imagePath.textContent = file.name;
+
+                    // 🔹 Reset delete flag if a new file is chosen
+                    if (deleteFlag) deleteFlag.value = "0";
                 }
                 reader.readAsDataURL(file);
             }
         });
     }
 });
-
 </script>
+
 
 
 
