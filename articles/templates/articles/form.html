@@ -1,7 +1,11 @@
 {% extends "base.html" %}
-{% load static %}
 {% block content %}
 {{ form.media }}
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <a href="{% url 'article_list' %}" class="btn btn-primary">Back</a><br><br>
 <h3>{% if form.instance.pk %}Edit Article – {{ form.instance.title }}{% else %}Add Article{% endif %}</h3>
@@ -18,12 +22,19 @@
     {{ form.slug.label_tag }}<br>
     {{ form.slug }}<br>
     <span id="slug-warning" style="color:red; display:none;">Slug already exists!</span><br>
+    
+{{ form.media }}  <!-- outputs the ckeditor.css/js you showed -->
 
-    {{ form.content.label_tag }}<br>
-    {{ form.content }}<br><br>
-    <button type="button" id="readmore-btn" class="btn btn-warning mb-3">
+{{ form.content.label_tag }}<br>
+{{ form.content }}<br><br>
+
+<button type="button" id="readmore-btn" class="btn btn-warning mb-3">
     Read More
-    </button><br> <br>
+</button>
+
+
+
+<br><br>
 
     <input type="hidden" name="delete_image" id="delete-image-flag" value="0">
     <div class="mb-3">
@@ -31,7 +42,8 @@
        
     <!-- Default file input -->
     <div id="file-input-container" {% if form.instance and form.instance.image %}style="display:none;"{% endif %}>
-        {{ form.image }}
+        {{ form.image }}<br>
+        <small>Image Dimensions (1920 px X 1080 px)</small>
     </div>
 
     <!-- IMAGE PATH BELOW BUTTON -->
@@ -69,28 +81,60 @@
 </div>
 
 
-
-
     {{ form.homepage.label_tag }}
     {{ form.homepage }}<br><br>
 
     {{ form.status.label_tag }}
     {{ form.status }}<br><br>
+    <input type="hidden" name="metadata_opened" id="metadata_opened" value="0">
 
-    {{ form.meta_title.label_tag }}
-    {{ form.meta_title }}<br><br>
+    <!-- Button with arrow -->
+    <button class="btn btn-secondary mb-3 d-flex justify-content-between align-items-center"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#metadata-section"
+            aria-expanded="false"
+            aria-controls="metadata-section">
+        Metadata
+        <i class="bi bi-chevron-down ms-2"></i> <!-- arrow icon -->
+    </button>
 
-    {{ form.meta_keywords.label_tag }}
-    {{ form.meta_keywords }}<br><br>
+    <!-- Collapsible section -->
+    <div class="collapse" id="metadata-section">
+        <div class="card card-body">
+            <div class="mb-3">
+                {{ form.meta_title.label_tag }}<br>
+                {{ form.meta_title }}
+                <small class="text-muted">
+                    <span id="title-left">60</span> characters left
+                </small>
+            </div>
 
-    {{ form.meta_description.label_tag }}
-    {{ form.meta_description }}<br><br>
+            <div class="mb-3">
+                {{ form.meta_keywords.label_tag }}<br>
+                {{ form.meta_keywords }}
+                <small class="text-muted">
+                    <span id="keywords-left">250</span> characters left
+                </small>
+            </div>
 
-
-   
+            <div class="mb-3">
+                {{ form.meta_description.label_tag }}<br>
+                {{ form.meta_description }}
+                <small class="text-muted">
+                    <span id="description-left">160</span> characters left
+                </small>
+            </div>
+        </div>
+    </div>
 
     <br>
-    <button type="submit" class="btn btn-success">Save</button>
+    <div>
+        <button type="submit" name="action" value="save" class="btn btn-success">Save</button>
+        <button type="submit" name="action" value="save_more" class="btn btn-success">Save & More</button>
+        <button type="submit" name="action" value="save_quit" class="btn btn-success">Save & Quit</button>
+
+    </div>
 </form>
 
 <script>
@@ -154,58 +198,6 @@
         }
     });
 </script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        document.getElementById("readmore-btn").addEventListener("click", function () {
-
-            // CKEditor 4 instance
-            const editor = CKEDITOR.instances['id_content'];
-
-            if (!editor) {
-                alert("Editor not ready");
-                return;
-            }
-
-            // Insert Read More marker
-            editor.insertHtml('<hr class="read-more" />');
-            function insertReadMore(editor) {
-                const content = editor.getData();
-
-                if (content.includes('class="read-more"')) {
-                    alert("You can only add one Read More line.");
-                    return;
-                }
-
-                editor.insertHtml('<hr class="read-more" />');
-            }
-
-        });
-
-    });
-</script>
-<script>
-CKEDITOR.on('instanceReady', function (evt) {
-    const editor = evt.editor;
-
-    editor.addCommand('insertReadMore', {
-        exec: function (editor) {
-            if (editor.getData().includes('class="read-more"')) {
-                alert('Only one Read More allowed.');
-                return;
-            }
-            editor.insertHtml('<hr class="read-more" />');
-        }
-    });
-
-    editor.ui.addButton('ReadMore', {
-        label: 'Read More',
-        command: 'insertReadMore',
-        toolbar: 'insert'
-    });
-});
-</script>
-
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -257,10 +249,98 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const collapseEl = document.getElementById('metadata-section');
+    const button = collapseEl.previousElementSibling; // the button
+    const icon = button.querySelector('i');
 
+    collapseEl.addEventListener('show.bs.collapse', function () {
+        icon.classList.remove('bi-chevron-down');
+        icon.classList.add('bi-chevron-up');
+    });
 
+    collapseEl.addEventListener('hide.bs.collapse', function () {
+        icon.classList.remove('bi-chevron-up');
+        icon.classList.add('bi-chevron-down');
+    });
+});
+</script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+    const metadataSection = document.getElementById("metadata-section");
+    const metadataOpened = document.getElementById("metadata_opened");
 
+    const titleInput = document.getElementById("meta_title");
+    const keywordsInput = document.getElementById("meta_keywords");
+    const descriptionInput = document.getElementById("meta_description");
+
+    const titleLeft = document.getElementById("title-left");
+    const keywordsLeft = document.getElementById("keywords-left");
+    const descriptionLeft = document.getElementById("description-left");
+
+    function updateTitle() {
+        titleLeft.textContent = 60 - titleInput.value.length;
+    }
+
+    function updateKeywords() {
+        keywordsLeft.textContent = 250 - keywordsInput.value.length;
+    }
+
+    function updateDescription() {
+        descriptionLeft.textContent = 160 - descriptionInput.value.length;
+    }
+
+    // Initial update (edit form case)
+    updateTitle();
+    updateKeywords();
+    updateDescription();
+
+    titleInput.addEventListener("input", updateTitle);
+    keywordsInput.addEventListener("input", updateKeywords);
+    descriptionInput.addEventListener("input", updateDescription);
+
+    // 🔥 Toggle required based on dropdown
+    metadataSection.addEventListener("shown.bs.collapse", function () {
+        metadataOpened.value = "1";
+        titleInput.required = true;
+        keywordsInput.required = true;
+        descriptionInput.required = true;
+    });
+
+    metadataSection.addEventListener("hidden.bs.collapse", function () {
+        metadataOpened.value = "0";
+        titleInput.required = false;
+        keywordsInput.required = false;
+        descriptionInput.required = false;
+    });
+});
+</script>
+<script>
+window.addEventListener("load", function () {
+    var button = document.getElementById("readmore-btn");
+    if (!button || !window.CKEDITOR) return;
+
+    var instanceName = Object.keys(CKEDITOR.instances)[0];
+    var editor = CKEDITOR.instances[instanceName];
+
+    button.addEventListener("click", function () {
+        if (!editor) return;
+
+        var data = editor.getData();
+
+        // Block if our special read-more already exists
+        if (data.match(/<hr[^>]*class=["']?[^"'>]*\bread-more\b[^"'>]*["']?[^>]*\/?>/i)) {
+            alert("You can only add one Read More line.");
+            return;
+        }
+
+        // Insert special tagged HR
+        editor.insertHtml('<hr class="read-more" style="border-style: dashed; border-color: orange;" />');
+    });
+});
+</script>
 
 {% endblock %}

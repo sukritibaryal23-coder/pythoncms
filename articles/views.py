@@ -11,24 +11,35 @@ from django.core.paginator import Paginator
 
 def check_slug(request):
     slug = request.GET.get("slug", "")
-    exists = Article.objects.filter(slug=slug).exists()
+    exists = Article.all_objects.filter(slug=slug).exists()
     return JsonResponse({"exists": exists})
+
 
 
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from .models import Article
+
 def article_list(request):
     query = request.GET.get("q", "")
     per_page = request.GET.get("per_page", "10")
+    homepage_filter = request.GET.get("homepage", "")  # NEW: homepage filter
 
     # BASE QUERYSET
     articles = Article.objects.all()
-
+    
     # SEARCH FILTER
     if query:
         articles = articles.filter(title__icontains=query)
+
+    # HOMEPAGE FILTER
+    if homepage_filter in ["0", "1"]:
+        articles = articles.filter(homepage=bool(int(homepage_filter)))
 
     # DRAG & DROP ORDER
     articles = articles.order_by("position")
@@ -66,7 +77,9 @@ def article_list(request):
         "page_obj": page_obj if per_page != "all" else None,
         "query": query,
         "per_page": per_page,
+        "homepage_filter": homepage_filter,  # send to template for dropdown pre-selection
     })
+
 
 
 
@@ -78,17 +91,32 @@ def article_form(request, id=None):
     if request.method == "POST":
             form = ArticleForm(request.POST, request.FILES, instance=article)
             if form.is_valid():
+                
                 if request.POST.get("delete_image") == "1":
                     if article and article.image:
                         article.image.delete(save=False)
                         article.image = None
-                form.save()
-                messages.success(request, "Article saved successfully.")
-                return redirect("article_list")
+                saved_article = form.save()
+                action = request.POST.get("action")
+
+                if action == "save":
+                    messages.success(request, "Article saved! You can add a new one.")
+                    return redirect('article_add')
+
+                elif action == "save_more":
+                    messages.success(request, "Article saved! You can continue editing.")
+                    # Render the same page with the saved article instance
+                    form = ArticleForm(instance=saved_article)  # Ensure form is pre-filled
+                    return render(request, "articles/form.html", {"form": form})
+
+                elif action == "save_quit":
+                    messages.success(request, "Article saved!")
+                    return redirect('article_list')
+
             else:
                 messages.error(request, "Failed to save the article.")
     else:
-        form = ArticleForm(instance=article)
+            form = ArticleForm(instance=article)
 
     return render(request, "articles/form.html", {"form": form})
 
