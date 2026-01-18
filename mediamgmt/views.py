@@ -138,16 +138,21 @@ def media_toggle_status(request, id):
 # ------------------------------
 @csrf_exempt
 def media_delete(request, id):
+    # Ensure only AJAX POST requests are allowed
     if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
+        # Get media object that is not already deleted
         media = get_object_or_404(Media, id=id, is_deleted=False)
-        media.delete()  # soft delete in your SoftDeleteModel
+        
+        # Perform soft delete
+        media.is_deleted = True  # your SoftDeleteModel probably has this field
+        media.save()
+        
         return JsonResponse({
             "success": True,
-            "message": "Media deleted successfully.",
+            "message": "Media moved to recycle bin successfully.",
         })
-
+    
     return JsonResponse({"success": False, "message": "Invalid request."}, status=400)
-
 
 # ------------------------------
 # 5️⃣ Bulk actions
@@ -185,7 +190,7 @@ def media_reorder(request):
             order = data.get("order", [])
 
             for index, media_id in enumerate(order):
-                Media.objects.filter(id=media_id).update(order=index)
+                Media.objects.filter(id=media_id).update(sort_order=index)
 
             return JsonResponse({"status": "success"})
         except Exception as e:
