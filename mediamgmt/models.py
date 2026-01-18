@@ -6,10 +6,20 @@ class Media(SoftDeleteModel):
         ('image', 'Image'),
         ('video', 'Video'),
     )
+    VIDEO_SOURCES = (
+        ('local', 'Local Video'),
+        ('youtube', 'YouTube'),
+    )
 
     title = models.CharField(max_length=255)
     file = models.FileField(upload_to='media/')
     media_type = models.CharField(max_length=10, choices=MEDIA_TYPES, default='image')
+    youtube_url = models.URLField(blank=True, null=True)  # NEW
+    video_source = models.CharField(
+        max_length=10,
+        choices=VIDEO_SOURCES,
+        default='local'
+    )  # NEW
     alt_text = models.CharField(max_length=255, blank=True, null=True)
     caption = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)

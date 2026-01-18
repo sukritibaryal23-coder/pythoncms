@@ -55,6 +55,76 @@ def media_list(request):
         "media_type": media_type,
     })
 
+def media_video_form(request, id=None):
+    """
+    Handles both adding new video media and editing existing video media.
+    """
+    media = None
+    if id:
+        media = get_object_or_404(
+            Media,
+            id=id,
+            is_deleted=False,
+            media_type="video"
+        )
+
+    media_type = "video"  # force video
+
+    if request.method == "POST":
+        form = MediaForm(request.POST, request.FILES, instance=media)
+        if form.is_valid():
+            saved_media = form.save(commit=False)
+
+            # If user requested to delete current file
+            if request.POST.get("delete_file") == "1":
+                if media and media.file:
+                    media.file.delete(save=False)
+                    saved_media.file = None
+
+            # Always set media type to video
+            saved_media.media_type = media_type
+
+            saved_media.save()
+
+            action = request.POST.get("action")
+
+            if action == "save":
+                messages.success(request, "Video saved! You can add a new one.")
+                return redirect(reverse("mediamgmt:media_video_form"))
+
+            elif action == "save_more":
+                messages.success(request, "Video saved! You can continue editing.")
+                form = MediaForm(instance=saved_media)
+                return render(
+                    request,
+                    "mediamgmt/media_video_form.html",
+                    {
+                        "form": form,
+                        "media": saved_media,
+                        "media_type": media_type,
+                    },
+                )
+
+            elif action == "save_quit":
+                messages.success(request, "Video saved!")
+                return redirect(f"{reverse('mediamgmt:media_list')}?media_type=video")
+
+        else:
+            messages.error(request, "Failed to save video. See errors below.")
+            print(form.errors)
+
+    else:
+        form = MediaForm(instance=media)
+
+    return render(
+        request,
+        "mediamgmt/media_video_form.html",
+        {
+            "form": form,
+            "media": media,
+            "media_type": media_type,
+        },
+    )
 
 
 # ------------------------------

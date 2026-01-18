@@ -21,7 +21,15 @@
 
 
         </div>
-        <a href="{% url 'mediamgmt:media_form' %}?media_type={{ media_type }}" class="btn btn-primary">Add New</a>
+        {% if media_type == "image" %}
+            <a href="{% url 'mediamgmt:media_form' %}" class="btn btn-primary mb-3">
+                 Add Image
+            </a>
+        {% elif media_type == "video" %}
+            <a href="{% url 'mediamgmt:media_video_form' %}" class="btn btn-primary mb-3">
+                 Add Video
+            </a>
+        {% endif %}
 
 
     </div>
@@ -88,7 +96,7 @@
                         <button type="button"
                                 class="btn btn-sm toggle-status-btn {% if media.is_active %}btn-success{% else %}btn-secondary{% endif %}"
                                 data-id="{{ media.id }}">
-                            {% if media.is_active %}Active{% else %}Inactive{% endif %}
+                            {% if media.is_active %}Published{% else %}Unpublished{% endif %}
                         </button>
                     </td>
                     <td>
@@ -98,6 +106,36 @@
                         <a href="#" class="btn btn-sm btn-danger delete-media-btn" data-id="{{ media.id }}">
                             <i class="bi bi-trash"></i>
                         </a>
+
+                        <script>
+                        document.querySelectorAll('.delete-media-btn').forEach(btn => {
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                if (!confirm("Are you sure you want to delete this media?")) return;
+
+                                const id = this.dataset.id;
+
+                                fetch(`/media/${id}/delete/`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRFToken': '{{ csrf_token }}',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Content-Type': 'application/json',
+                                    },
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        // Remove the row from the table or reload page
+                                        location.reload();
+                                    } else {
+                                        alert(data.message);
+                                    }
+                                });
+                            });
+                        });
+                        </script>
+
                     </td>
                 </tr>
                 {% empty %}
@@ -327,11 +365,11 @@ document.querySelectorAll('.toggle-status-btn').forEach(btn => {
                 if (data.is_active) {
                     btn.classList.remove('btn-secondary');
                     btn.classList.add('btn-success');
-                    btn.textContent = 'Active';
+                    btn.textContent = 'Published';
                 } else {
                     btn.classList.remove('btn-success');
                     btn.classList.add('btn-secondary');
-                    btn.textContent = 'Inactive';
+                    btn.textContent = 'Unpublished';
                 }
             } else {
                 alert('Error toggling status');
