@@ -123,16 +123,14 @@ def media_form(request, id=None):
 # ------------------------------
 def media_toggle_status(request, id):
     if request.method == "POST":
-        media = get_object_or_404(Media, id=id, is_deleted=False)
-        media.is_active = not media.is_active
-        media.save()
-
-        return JsonResponse({
-            "success": True,
-            "status": media.is_active,
-        })
-
-    return JsonResponse({"success": False}, status=400)
+        try:
+            media = Media.objects.get(id=id)
+            media.is_active = not media.is_active
+            media.save()
+            return JsonResponse({"success": True, "is_active": media.is_active})
+        except Media.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Media not found"})
+    return JsonResponse({"success": False, "error": "Invalid request"})
 
 
 # ------------------------------

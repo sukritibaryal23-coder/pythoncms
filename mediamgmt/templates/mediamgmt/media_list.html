@@ -305,5 +305,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+<script>
+document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const mediaId = this.dataset.id;
+        fetch("{% url 'mediamgmt:media_toggle_status' 0 %}".replace('0', mediaId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (data.is_active) {
+                    btn.classList.remove('btn-secondary');
+                    btn.classList.add('btn-success');
+                    btn.textContent = 'Active';
+                } else {
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-secondary');
+                    btn.textContent = 'Inactive';
+                }
+            } else {
+                alert('Error toggling status');
+            }
+        });
+    });
+});
+</script>
+
 
 {% endblock %}
