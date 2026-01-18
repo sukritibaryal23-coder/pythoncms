@@ -1,6 +1,56 @@
 .drag-handle {
-    cursor: grab; /* shows it’s draggable */
-    font-size: 1.2rem; /* make the icon bigger if needed */
-    color: #555; /* optional */
+    cursor: grab;
+    /* shows it’s draggable */
+    font-size: 1.2rem;
+    /* make the icon bigger if needed */
+    color: #555;
+    /* optional */
 }
 
+/* Sidebar container */
+.sidebar {
+    background: #e7e7e7!important;  /* deep dark navy */
+    color: #f8fafc;       /* soft white */
+    padding: 20px;
+}
+
+/* Sidebar header */
+.sidebar h4 {
+    color: #0f0101;       /* soft white */
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Nav links */
+.sidebar .nav-link {
+    color: #181818;       /* light gray */
+    transition: 0.2s ease-in-out;
+}
+
+/* Hover effect */
+.sidebar .nav-link:hover {
+    background-color: #2a3952; /* dark slate hover */
+    color: #ffffff;            /* bright white on hover */
+}
+
+/* Active link */
+.sidebar .nav-link.active {
+    background-color: #1e293b; /* modern blue for active */
+    color: #ffffff !important;
+}
+
+/* Icons */
+.sidebar .nav-link i {
+    color: #181818;            /* keep icons same as link color */
+    transition: 0.2s;
+}
+
+.sidebar .nav-link.active i,
+.sidebar .nav-link:hover i {
+    color: #ffffff;             /* white icons on hover/active */
+}
+
+body{
+    background-color: #ffffff;
+}

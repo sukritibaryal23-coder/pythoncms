@@ -1,60 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<div class="container-fluid">
+    <div class="row">
+        <!-- If your sidebar is part of base.html, skip this col -->
+         <!-- adjust if your sidebar uses 2 cols -->
+            <h2>Recycle Bin</h2>
 
-<h2>Recycle Bin</h2>
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>Title</th>
+                        <th>Model</th>
+                        <th>Deleted At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in deleted_items %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_items" value="{{ item.model }}:{{ item.id }}">
+                        </td>
+                        <td>{{ item.title }}</td>   
+                        <td>{{ item.model|title }}</td>
+                        <td>{{ item.deleted_at|default:"-" }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-success" href="{% url 'recycle_restore' item.model item.id %}">
+                                <i class="bi bi-arrow-clockwise" onclick="return confirm('Are you sure you want to restore selected?');"></i>
+                            </a>
+                            <a class="btn btn-sm btn-danger" href="{% url 'recycle_hard_delete' item.model item.id %}" onclick="return confirm('Are you sure you want to delete selected?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Recycle bin is empty</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    </div>
+</div>
 
-<table class="table table-striped table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th><input type="checkbox" id="select-all"></th>
-            <th>Title</th>
-            <th>Model</th>
-            <th>Deleted At</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in deleted_items %}
-        <tr>
-            <td>
-                <input type="checkbox" name="selected_items" value="{{ item.model }}:{{ item.id }}">
-            </td>
-
-            <td>
-                {{ item.title }}
-            </td>   
-            <td>
-                {{ item.model|title }}
-        
-            </td>
-
-            <td>{{ item.deleted_at|default:"-" }}</td>
-
-            <td>
-                <a class="btn btn-sm btn-success"
-                href="{% url 'recycle_restore' item.model item.id %}">
-                    <i class="bi bi-arrow-clockwise"onclick="return confirm('Are you sure you want to restore selected?');"></i>
-                </a>
-
-                <a class="btn btn-sm btn-danger"
-                href="{% url 'recycle_hard_delete' item.model item.id %}" onclick="return confirm('Are you sure you want to delete selected?');">
-                    <i class="bi bi-trash"></i>
-                </a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" class="text-center text-muted">
-                Recycle bin is empty
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-
-</table>
 <script>
-    // Select/Deselect all checkboxes
     document.getElementById('select-all').addEventListener('click', function(){
         let checkboxes = document.querySelectorAll('input[name="selected_articles"]');
         checkboxes.forEach(cb => cb.checked = this.checked);

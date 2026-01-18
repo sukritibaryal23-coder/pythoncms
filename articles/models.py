@@ -3,6 +3,7 @@ from django.db import models
 from core.models import SoftDeleteModel
 from django.utils.text import slugify
 from ckeditor_uploader.fields import RichTextUploadingField
+import re
 # Create your models here.
 
 
@@ -24,10 +25,10 @@ class Article(SoftDeleteModel):
         if not self.slug:
             # Generate slug from title
             self.slug = slugify(self.title)
+            
         super().save(*args, **kwargs)
     def __str__(self):
         return str(self.title or "")
     
     class Meta:
         ordering = ['position']
-

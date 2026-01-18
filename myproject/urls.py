@@ -28,7 +28,7 @@ urlpatterns = [
     path("dashboard/", include("dashboard.urls")),
     path("recycle-bin/", include("recyclebin.urls")),
     path("core/", include("core.urls")),
-
+    path('media/', include('mediamgmt.urls', namespace='mediamgmt')),
 
 ]
 

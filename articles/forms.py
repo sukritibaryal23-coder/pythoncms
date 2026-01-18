@@ -15,13 +15,15 @@ class ArticleForm(forms.ModelForm):
             "slug",
             "content",
             "image",
-            "homepage",
             "status",
             "meta_title",
             "meta_keywords",
             "meta_description",
         ]
         widgets = {
+            'title': forms.TextInput(attrs={
+                'required': True,
+                }),
             "content": CKEditorUploadingWidget(config_name="default"),
             "image": forms.FileInput(),
             "meta_title": forms.TextInput(attrs={
@@ -37,6 +39,16 @@ class ArticleForm(forms.ModelForm):
                 "maxlength": 160
             }),
         }
+
+    def clean_content(self):
+        content = self.cleaned_data.get("content", "") or ""
+        if content.count('class="read-more"') > 1:
+            raise forms.ValidationError("Only one Read More line is allowed.")
+        return content
+
+
+
+
         
     def check_slug(request):
         slug = request.GET.get("slug", "")
@@ -76,21 +88,5 @@ class ArticleForm(forms.ModelForm):
 
         return cleaned_data
     
-
-    def clean_content(self):
-        content = self.cleaned_data.get("content", "") or ""
-
-        readmore_tags = re.findall(
-            r'<hr[^>]*\bclass=["\']?[^"\'>]*\bread-more\b[^"\'>]*["\']?[^>]*>',
-            content,
-            re.IGNORECASE,
-        )
-
-        if len(readmore_tags) > 1:
-            raise forms.ValidationError(
-                "You can only have one Read More line in content."
-            )
-
-        return content
 
 

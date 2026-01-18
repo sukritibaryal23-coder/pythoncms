@@ -1,0 +1,38 @@
+{% for article in articles %}
+                <tr data-id="{{ article.id }}">
+                    <td> <span class="drag-handle"><i class="bi bi-grip-vertical"></span></td>
+                    <td><input type="checkbox" name="selected_articles" value="{{ article.id }}"></td>
+                    <td>
+                        <a href="{% url 'article_edit' article.id %}" >
+                            {{ article.title }}
+                            {% if current_sort == "title" %}
+                                {% if current_order == "asc" %}▲{% else %}▼{% endif %}
+                            {% endif %}
+                        </a>
+                    </td>
+
+                  <td>
+                    <button
+                        type="button"
+                        class="btn btn-sm toggle-status-btn {% if article.status %}btn-success{% else %}btn-secondary{% endif %}"
+                        data-id="{{ article.id }}"
+                    >
+                        {% if article.status %}Published{% else %}Unpublished{% endif %}
+                    </button>
+                </td>
+
+                    
+                    <td>
+                        <a href="{% url 'article_edit' article.id %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil-square"></i></a>
+                
+                        <a href="{% url 'article_delete' article.id %}" class="btn btn-sm btn-danger" 
+                        onclick="return confirm('Are you sure you want to delete this article?');"><i class="bi bi-trash"></i>
+</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <th>
+                    <td colspan="5" class="text-center">No articles found</td>
+                </th>
+            
+{% endfor %}

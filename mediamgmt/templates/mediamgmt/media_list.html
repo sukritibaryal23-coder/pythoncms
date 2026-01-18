@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<div id="status-toggle-message"></div>
+<div id="bulk-action-message"></div>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <h3 class="mb-0">Media Library</h3>
+           <form method="get" id="mediaFilterForm">
+                <select name="media_type" class="form-select" onchange="document.getElementById('mediaFilterForm').submit();" required>
+                    <option value="image" {% if media_type == 'image' %}selected{% endif %}>Image</option>
+                    <option value="video" {% if media_type == 'video' %}selected{% endif %}>Video</option>
+                </select>
+            </form>
+
+
+        </div>
+        <a href="{% url 'mediamgmt:media_form' %}?media_type={{ media_type }}" class="btn btn-primary">Add New</a>
+
+
+    </div>
+
+    <hr><br>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+
+        <!-- Entries per page -->
+        <form method="get" id="entries-form" class="d-flex align-items-center mb-0">
+            <label class="mb-0">
+                Show
+                <select name="per_page" class="form-select d-inline-block w-auto ms-1 me-1" onchange="this.form.submit()">
+                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="all" {% if per_page == 'all' %}selected{% endif %}>All</option>
+                </select>
+                entries
+            </label>
+            {% if query %}
+                <input type="hidden" name="q" value="{{ query }}">
+            {% endif %}
+        </form>
+
+        <!-- Search -->
+        <form id="media-search-form" class="d-flex w-auto mb-0">
+            <div class="input-group">
+                <input type="text" id="media-search" name="q" class="form-control"
+                       placeholder="Search media..." value="{{ query }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+    <form method="post" id="bulk-action-form">
+        {% csrf_token %}
+        <div class="mb-2">
+            <button type="button" class="btn btn-success btn-sm bulk-action-btn" data-action="toggle_status">Status</button>
+            <button type="button" class="btn btn-danger btn-sm bulk-action-btn" data-action="delete">Delete</button>
+        </div>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th></th>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="media-table-body">
+                {% for media in page_obj %}
+                <tr data-id="{{ media.id }}">
+                    <td><span class="drag-handle"><i class="bi bi-grip-vertical"></i></span></td>
+                    <td><input type="checkbox" name="selected_media[]" value="{{ media.id }}"></td>
+                    <td><a href="{% url 'mediamgmt:media_form' media.id %}?media_type={{ media.media_type }}">{{ media.title }}</a>
+
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm toggle-status-btn {% if media.is_active %}btn-success{% else %}btn-secondary{% endif %}"
+                                data-id="{{ media.id }}">
+                            {% if media.is_active %}Active{% else %}Inactive{% endif %}
+                        </button>
+                    </td>
+                    <td>
+                        <a href="{% url 'mediamgmt:media_form' media.id %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-danger delete-media-btn" data-id="{{ media.id }}">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No media found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+
+    <!-- Pagination -->
+    <div class="mt-4 d-flex justify-content-end me-3">
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-arrow-left"></i></a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-arrow-left"></i></span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-arrow-right"></i></a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-arrow-right"></i></span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- JS: Drag & Drop -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tbody = document.getElementById('media-table-body');
+    if (!tbody) return;
+
+    new Sortable(tbody, {
+        handle: '.drag-handle',
+        animation: 150,
+        ghostClass: 'dragging',
+        dataIdAttr: 'data-id',
+        onEnd: function(evt) {
+            const order = Array.from(tbody.children).map(tr => tr.dataset.id);
+           fetch("{% url 'mediamgmt:media_reorder' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ order: order })
+            })
+            .then(r => r.json())
+            .then(data => console.log(data));
+
+        }
+    });
+});
+</script>
+
+<!-- JS: Search -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("media-search-form");
+    const input = document.getElementById("media-search");
+    const tableBody = document.getElementById("media-table-body");
+
+    let typingTimer;
+
+    function doSearch() {
+        const query = input.value.trim();
+        const params = new URLSearchParams(window.location.search);
+        params.set("type", "{{ media_type }}");
+        params.set("per_page", "{{ per_page }}");
+        params.delete("page");
+
+        if (query === "") params.delete("q");
+        else params.set("q", query);
+
+        fetch(`/media/?${params.toString()}`, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+        .then(res => res.json())
+        .then(data => {
+            tableBody.innerHTML = data.html;
+            history.replaceState(null, "", `/media/?${params.toString()}`);
+        });
+    }
+
+    form.addEventListener("submit", e => { e.preventDefault(); doSearch(); });
+    input.addEventListener("input", () => { clearTimeout(typingTimer); typingTimer = setTimeout(doSearch, 300); });
+});
+</script>
+
+<!-- JS: Select All -->
+<script>
+document.getElementById('select-all').addEventListener('click', function(){
+    document.querySelectorAll('input[name="selected_media"]').forEach(cb => cb.checked = this.checked);
+});
+</script>
+
+<!-- JS: Media type filter -->
+<script>
+function applyFilter() {
+    const filter = document.getElementById("media-type-filter").value;
+    const params = new URLSearchParams(window.location.search);
+    params.set("type", filter);
+    window.location.search = params.toString();
+}
+</script>
+
+<!-- JS: Toggle status -->
+<script>
+document.addEventListener("click", function(e){
+    if (!e.target.classList.contains("toggle-status-btn")) return;
+    const btn = e.target;
+    const mediaId = btn.dataset.id;
+
+    fetch(`/media/toggle-status/${mediaId}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+        }
+    }).then(r=>r.json()).then(data=>{
+        if (data.success) {
+            btn.classList.toggle("btn-success", data.status);
+            btn.classList.toggle("btn-secondary", !data.status);
+            btn.textContent = data.status ? "Published" : "Unpublished";
+            showStatusMessage(data.message);
+        }
+    });
+});
+
+function showStatusMessage(msg) {
+    const box = document.getElementById("status-toggle-message");
+    box.innerHTML = `<div class="alert alert-success mt-2 mb-0">${msg}</div>`;
+    setTimeout(()=>box.innerHTML="",2000);
+}
+
+function getCookie(name){
+    let cookieValue = null;
+    document.cookie.split(";").forEach(cookie=>{
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + "=")) cookieValue = decodeURIComponent(cookie.slice(name.length+1));
+    });
+    return cookieValue;
+}
+</script>
+
+<!-- JS: Delete / Bulk actions -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.getElementById("media-table-body");
+    const bulkButtons = document.querySelectorAll(".bulk-action-btn");
+
+    // Delete
+    tableBody.addEventListener("click", function (e) {
+        const btn = e.target.closest(".delete-media-btn");
+        if (!btn) return;
+        if (!confirm("Are you sure you want to delete this media?")) return;
+        const id = btn.dataset.id;
+
+        fetch(`/media/delete/${id}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        }).then(r=>r.json()).then(data=>{
+            if (data.success) btn.closest("tr").remove();
+        });
+    });
+
+    // Bulk actions
+    bulkButtons.forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+            const action = btn.dataset.action;
+            const selected = [...document.querySelectorAll("input[name='selected_media']:checked")].map(cb=>cb.value);
+            if (!selected.length) return alert("Select at least one media.");
+            const formData = new FormData();
+            formData.append("action", action);
+            selected.forEach(id=>formData.append("selected_media[]", id));
+
+            fetch("{% url 'mediamgmt:media_bulk_action' %}", { method:"POST", body:formData, headers:{"X-CSRFToken":getCookie("csrftoken")} })
+            .then(r=>r.json()).then(data=>{ 
+                if (data.success) {
+                    if (action=="delete") selected.forEach(id=>{ const row = document.querySelector(`tr[data-id='${id}']`); if(row) row.remove(); });
+                }
+            });
+        });
+    });
+});
+</script>
+
+{% endblock %}
