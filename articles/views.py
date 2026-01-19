@@ -99,7 +99,7 @@ def article_form(request, id=None):
 
             saved_article = form.save(commit=False)
 
-            # 🔥 SET homepage ONLY WHEN ADDING (not editing)
+            # SET homepage ONLY WHEN ADDING (not editing)
             if not id and homepage_param in ["0", "1"]:
                 saved_article.homepage = bool(int(homepage_param))
 
