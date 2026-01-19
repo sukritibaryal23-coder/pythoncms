@@ -1,383 +1,219 @@
 {% extends "base.html" %}
-
 {% block content %}
+
+<!-- External libs -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-<div id="status-toggle-message"></div>
-<div id="bulk-action-message"></div>
+<style>
+.object-fit-cover { object-fit: cover; }
+.card video { width: 100%; height: 100%; object-fit: cover; }
+.drag-handle { cursor: grab; }
+</style>
 
 <div class="container mt-5">
 
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center gap-3">
             <h3 class="mb-0">Media Library</h3>
-           <form method="get" id="mediaFilterForm">
-                <select name="media_type" class="form-select" onchange="document.getElementById('mediaFilterForm').submit();" required>
-                    <option value="image" {% if media_type == 'image' %}selected{% endif %}>Image</option>
-                    <option value="video" {% if media_type == 'video' %}selected{% endif %}>Video</option>
+
+            <form method="get" id="mediaFilterForm">
+                <select name="media_type" class="form-select"
+                        onchange="this.form.submit()">
+                    <option value="image" {% if media_type == "image" %}selected{% endif %}>Images</option>
+                    <option value="video" {% if media_type == "video" %}selected{% endif %}>Videos</option>
                 </select>
             </form>
 
-
-        </div>
-        {% if media_type == "image" %}
-            <a href="{% url 'mediamgmt:media_form' %}" class="btn btn-primary mb-3">
-                 Add Image
-            </a>
-        {% elif media_type == "video" %}
-            <a href="{% url 'mediamgmt:media_video_form' %}" class="btn btn-primary mb-3">
-                 Add Video
-            </a>
-        {% endif %}
-
-
-    </div>
-
-    <hr><br>
-
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-
-        <!-- Entries per page -->
-        <form method="get" id="entries-form" class="d-flex align-items-center mb-0">
-            <label class="mb-0">
-                Show
-                <select name="per_page" class="form-select d-inline-block w-auto ms-1 me-1" onchange="this.form.submit()">
-                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
-                    <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
-                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-                    <option value="all" {% if per_page == 'all' %}selected{% endif %}>All</option>
-                </select>
-                entries
-            </label>
-            {% if query %}
-                <input type="hidden" name="q" value="{{ query }}">
-            {% endif %}
-        </form>
-
-        <!-- Search -->
-        <form id="media-search-form" class="d-flex w-auto mb-0">
-            <div class="input-group">
-                <input type="text" id="media-search" name="q" class="form-control"
-                       placeholder="Search media..." value="{{ query }}">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i>
+            <!-- View Toggle -->
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" id="listViewBtn">
+                    <i class="bi bi-list"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" id="gridViewBtn">
+                    <i class="bi bi-grid-3x3-gap"></i>
                 </button>
             </div>
-        </form>
-
-    </div>
-
-    <form method="post" id="bulk-action-form">
-        {% csrf_token %}
-        <div class="mb-2">
-            <button type="button" class="btn btn-success btn-sm bulk-action-btn" data-action="toggle_status">Status</button>
-            <button type="button" class="btn btn-danger btn-sm bulk-action-btn" data-action="delete">Delete</button>
         </div>
 
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th></th>
-                    <th><input type="checkbox" id="select-all"></th>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="media-table-body">
-                {% for media in page_obj %}
-                <tr data-id="{{ media.id }}">
-                    <td><span class="drag-handle"><i class="bi bi-grip-vertical"></i></span></td>
-                    <td><input type="checkbox" name="selected_media[]" value="{{ media.id }}"></td>
-                    <td><a href="{% url 'mediamgmt:media_form' media.id %}?media_type={{ media.media_type }}">{{ media.title }}</a>
-
-                    <td>
-                        <button type="button"
-                                class="btn btn-sm toggle-status-btn {% if media.is_active %}btn-success{% else %}btn-secondary{% endif %}"
-                                data-id="{{ media.id }}">
-                            {% if media.is_active %}Published{% else %}Unpublished{% endif %}
-                        </button>
-                    </td>
-                    <td>
-                        <a href="{% url 'mediamgmt:media_form' media.id %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <a href="#" class="btn btn-sm btn-danger delete-media-btn" data-id="{{ media.id }}">
-                            <i class="bi bi-trash"></i>
-                        </a>
-
-                        <script>
-                        document.querySelectorAll('.delete-media-btn').forEach(btn => {
-                            btn.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                if (!confirm("Are you sure you want to delete this media?")) return;
-
-                                const id = this.dataset.id;
-
-                                fetch(`/media/${id}/delete/`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRFToken': '{{ csrf_token }}',
-                                        'X-Requested-With': 'XMLHttpRequest',
-                                        'Content-Type': 'application/json',
-                                    },
-                                })
-                                .then(res => res.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        // Remove the row from the table or reload page
-                                        location.reload();
-                                    } else {
-                                        alert(data.message);
-                                    }
-                                });
-                            });
-                        });
-                        </script>
-
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" class="text-center">No media found</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </form>
-
-    <!-- Pagination -->
-    <div class="mt-4 d-flex justify-content-end me-3">
-        {% if page_obj.has_other_pages %}
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-arrow-left"></i></a>
-                </li>
-                {% else %}
-                <li class="page-item disabled"><span class="page-link"><i class="bi bi-arrow-left"></i></span></li>
-                {% endif %}
-
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-arrow-right"></i></a>
-                </li>
-                {% else %}
-                <li class="page-item disabled"><span class="page-link"><i class="bi bi-arrow-right"></i></span></li>
-                {% endif %}
-            </ul>
-        </nav>
+        {% if media_type == "image" %}
+            <a href="{% url 'mediamgmt:media_form' %}" class="btn btn-primary">Add Image</a>
+        {% else %}
+            <a href="{% url 'mediamgmt:media_video_form' %}" class="btn btn-primary">Add Video</a>
         {% endif %}
     </div>
+
+    <hr>
+
+    <!-- ================= LIST VIEW ================= -->
+    <table class="table table-striped table-hover" id="media-table">
+        <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>Title</th>
+                <th>Status</th>
+                <th width="160">Action</th>
+            </tr>
+        </thead>
+        <tbody id="media-table-body">
+            {% for media in page_obj %}
+            <tr data-id="{{ media.id }}">
+                <td><i class="bi bi-grip-vertical drag-handle"></i></td>
+                <td>{{ media.title }}</td>
+                <td>
+                    <button class="btn btn-sm toggle-status-btn
+                        {% if media.is_active %}btn-success{% else %}btn-secondary{% endif %}"
+                        data-id="{{ media.id }}">
+                        {% if media.is_active %}Published{% else %}Unpublished{% endif %}
+                    </button>
+                </td>
+                <td>
+                    <a href="{% url 'mediamgmt:media_form' media.id %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button class="btn btn-sm btn-danger delete-media-btn"
+                            data-id="{{ media.id }}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center">No media found</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ================= GRID VIEW ================= -->
+    <div class="row g-3 d-none" id="media-grid">
+        {% for media in page_obj %}
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div class="card shadow-sm h-100">
+
+                <!-- Preview -->
+                <div class="ratio ratio-16x9 bg-dark">
+                    {% if media.media_type == "image" %}
+                        <img src="{{ media.file.url }}"
+                             class="img-fluid object-fit-cover">
+                    {% else %}
+                        {% if media.youtube_url %}
+                            <iframe
+                                src="https://www.youtube.com/embed/{{ media.youtube_url|cut:'https://www.youtube.com/watch?v=' }}"
+                                frameborder="0"
+                                allowfullscreen></iframe>
+                        {% elif media.file %}
+                            <video src="{{ media.file.url }}" muted></video>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Info -->
+                <div class="card-body p-2">
+                    <strong class="d-block text-truncate">{{ media.title }}</strong>
+                    <span class="badge {% if media.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                        {% if media.is_active %}Published{% else %}Unpublished{% endif %}
+                    </span>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-footer d-flex justify-content-between p-2">
+                    <a href="{% url 'mediamgmt:media_form' media.id %}"
+                       class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button class="btn btn-sm btn-danger delete-media-btn"
+                            data-id="{{ media.id }}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
 
+<!-- ================= JS ================= -->
 
-<!-- JS: Drag & Drop -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tbody = document.getElementById('media-table-body');
-    if (!tbody) return;
+/* View toggle */
+const tableView = document.getElementById("media-table");
+const gridView = document.getElementById("media-grid");
 
-    new Sortable(tbody, {
-        handle: '.drag-handle',
-        animation: 150,
-        ghostClass: 'dragging',
-        dataIdAttr: 'data-id',
-        onEnd: function(evt) {
-            const order = Array.from(tbody.children).map(tr => tr.dataset.id);
-           fetch("{% url 'mediamgmt:media_reorder' %}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}"
-                },
-                body: JSON.stringify({ order: order })
-            })
-            .then(r => r.json())
-            .then(data => console.log(data));
+document.getElementById("gridViewBtn").onclick = () => {
+    tableView.classList.add("d-none");
+    gridView.classList.remove("d-none");
+    localStorage.setItem("mediaView", "grid");
+};
 
-        }
-    });
+document.getElementById("listViewBtn").onclick = () => {
+    gridView.classList.add("d-none");
+    tableView.classList.remove("d-none");
+    localStorage.setItem("mediaView", "list");
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("mediaView") === "grid") {
+        tableView.classList.add("d-none");
+        gridView.classList.remove("d-none");
+    }
 });
-</script>
 
-<!-- JS: Search -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("media-search-form");
-    const input = document.getElementById("media-search");
-    const tableBody = document.getElementById("media-table-body");
+/* Drag reorder (list view only) */
+new Sortable(document.getElementById("media-table-body"), {
+    handle: ".drag-handle",
+    animation: 150,
+    onEnd() {
+        const order = [...document.querySelectorAll("tr[data-id]")]
+            .map(tr => tr.dataset.id);
 
-    let typingTimer;
-
-    function doSearch() {
-        const query = input.value.trim();
-        const params = new URLSearchParams(window.location.search);
-        params.set("type", "{{ media_type }}");
-        params.set("per_page", "{{ per_page }}");
-        params.delete("page");
-
-        if (query === "") params.delete("q");
-        else params.set("q", query);
-
-        fetch(`/media/?${params.toString()}`, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-        .then(res => res.json())
-        .then(data => {
-            tableBody.innerHTML = data.html;
-            history.replaceState(null, "", `/media/?${params.toString()}`);
+        fetch("{% url 'mediamgmt:media_reorder' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ order })
         });
     }
-
-    form.addEventListener("submit", e => { e.preventDefault(); doSearch(); });
-    input.addEventListener("input", () => { clearTimeout(typingTimer); typingTimer = setTimeout(doSearch, 300); });
 });
-</script>
 
-<!-- JS: Select All -->
-<script>
-document.getElementById('select-all').addEventListener('click', function(){
-    document.querySelectorAll('input[name="selected_media"]').forEach(cb => cb.checked = this.checked);
-});
-</script>
+/* Delete */
+document.addEventListener("click", e => {
+    const btn = e.target.closest(".delete-media-btn");
+    if (!btn) return;
 
-<!-- JS: Media type filter -->
-<script>
-function applyFilter() {
-    const filter = document.getElementById("media-type-filter").value;
-    const params = new URLSearchParams(window.location.search);
-    params.set("type", filter);
-    window.location.search = params.toString();
-}
-</script>
+    if (!confirm("Delete this media?")) return;
 
-<!-- JS: Toggle status -->
-<script>
-document.addEventListener("click", function(e){
-    if (!e.target.classList.contains("toggle-status-btn")) return;
-    const btn = e.target;
-    const mediaId = btn.dataset.id;
-
-    fetch(`/media/toggle-status/${mediaId}/`, {
+    fetch(`/media/delete/${btn.dataset.id}/`, {
         method: "POST",
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken"),
-            "X-Requested-With": "XMLHttpRequest",
-        }
-    }).then(r=>r.json()).then(data=>{
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) location.reload();
+        else alert(data.message);
+    });
+});
+
+/* Toggle status */
+document.addEventListener("click", e => {
+    const btn = e.target.closest(".toggle-status-btn");
+    if (!btn) return;
+
+    fetch(`/media/toggle-status/${btn.dataset.id}/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(r => r.json())
+    .then(data => {
         if (data.success) {
             btn.classList.toggle("btn-success", data.status);
             btn.classList.toggle("btn-secondary", !data.status);
             btn.textContent = data.status ? "Published" : "Unpublished";
-            showStatusMessage(data.message);
         }
     });
 });
-
-function showStatusMessage(msg) {
-    const box = document.getElementById("status-toggle-message");
-    box.innerHTML = `<div class="alert alert-success mt-2 mb-0">${msg}</div>`;
-    setTimeout(()=>box.innerHTML="",2000);
-}
-
-function getCookie(name){
-    let cookieValue = null;
-    document.cookie.split(";").forEach(cookie=>{
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + "=")) cookieValue = decodeURIComponent(cookie.slice(name.length+1));
-    });
-    return cookieValue;
-}
 </script>
-
-<!-- JS: Delete / Bulk actions -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const tableBody = document.getElementById("media-table-body");
-
-    // Helper to get CSRF cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    // Delete single media
-    tableBody.addEventListener("click", function (e) {
-        const btn = e.target.closest(".delete-media-btn");
-        if (!btn) return;
-        if (!confirm("Are you sure you want to delete this media?")) return;
-
-        const id = btn.dataset.id;
-
-        fetch(`/media/delete/${id}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-                "X-Requested-With": "XMLHttpRequest"
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Remove the row from the table
-                btn.closest("tr").remove();
-                alert(data.message);
-            } else {
-                alert(data.message || "Something went wrong.");
-            }
-        })
-        .catch(err => console.error(err));
-    });
-});
-</script>
-<script>
-document.querySelectorAll('.toggle-status-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const mediaId = this.dataset.id;
-        fetch("{% url 'mediamgmt:media_toggle_status' 0 %}".replace('0', mediaId), {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-            },
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                if (data.is_active) {
-                    btn.classList.remove('btn-secondary');
-                    btn.classList.add('btn-success');
-                    btn.textContent = 'Published';
-                } else {
-                    btn.classList.remove('btn-success');
-                    btn.classList.add('btn-secondary');
-                    btn.textContent = 'Unpublished';
-                }
-            } else {
-                alert('Error toggling status');
-            }
-        });
-    });
-});
-</script>
-
 
 {% endblock %}

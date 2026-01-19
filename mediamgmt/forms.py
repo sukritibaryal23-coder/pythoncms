@@ -14,32 +14,38 @@ class MediaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        media_type = self.instance.media_type if self.instance else kwargs.get('initial', {}).get('media_type', 'image')
 
-        # Dynamically make fields optional depending on type
+        media_type = (
+            self.initial.get("media_type")
+            or self.instance.media_type
+            or "image"
+        )
+
         if media_type == "image":
-            self.fields['file'].required = True
-            self.fields['youtube_url'].required = False
-            self.fields['video_source'].required = False
+            self.fields["file"].required = True
+            self.fields["video_source"].required = False
+            self.fields["youtube_url"].required = False
+
         elif media_type == "video":
-            self.fields['video_source'].required = True
-            self.fields['file'].required = False
-            self.fields['youtube_url'].required = False
+            self.fields["video_source"].required = True
+            self.fields["file"].required = False
+            self.fields["youtube_url"].required = False
+
 
     def clean(self):
         cleaned_data = super().clean()
+
         media_type = cleaned_data.get("media_type")
-        file = cleaned_data.get("file")
         video_source = cleaned_data.get("video_source")
+        file = cleaned_data.get("file")
         youtube_url = cleaned_data.get("youtube_url")
 
-        if media_type == "image" and not file:
-            raise forms.ValidationError("Image file is required!")
-
         if media_type == "video":
-            if video_source == "youtube" and not youtube_url:
-                raise forms.ValidationError("YouTube URL is required!")
             if video_source == "local" and not file:
-                raise forms.ValidationError("Local video file is required!")
+                self.add_error("file", "Please upload a video file.")
+
+            if video_source == "youtube" and not youtube_url:
+                self.add_error("youtube_url", "Please provide a YouTube URL.")
 
         return cleaned_data
+

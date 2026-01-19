@@ -71,7 +71,14 @@ def media_video_form(request, id=None):
     media_type = "video"  # force video
 
     if request.method == "POST":
-        form = MediaForm(request.POST, request.FILES, instance=media)
+        # Pass media_type as initial so the form knows it's a video
+        form = MediaForm(
+            request.POST,
+            request.FILES,
+            instance=media,
+            initial={"media_type": "video"}
+        )
+
         if form.is_valid():
             saved_media = form.save(commit=False)
 
@@ -81,7 +88,7 @@ def media_video_form(request, id=None):
                     media.file.delete(save=False)
                     saved_media.file = None
 
-            # Always set media type to video
+            # Always set media_type to video
             saved_media.media_type = media_type
 
             saved_media.save()
@@ -94,7 +101,11 @@ def media_video_form(request, id=None):
 
             elif action == "save_more":
                 messages.success(request, "Video saved! You can continue editing.")
-                form = MediaForm(instance=saved_media)
+                # Recreate form with instance to continue editing
+                form = MediaForm(
+                    instance=saved_media,
+                    initial={"media_type": "video"}
+                )
                 return render(
                     request,
                     "mediamgmt/media_video_form.html",
@@ -114,7 +125,11 @@ def media_video_form(request, id=None):
             print(form.errors)
 
     else:
-        form = MediaForm(instance=media)
+        # GET request: create form with media_type forced as video
+        form = MediaForm(
+            instance=media,
+            initial={"media_type": "video"}
+        )
 
     return render(
         request,
