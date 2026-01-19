@@ -1,32 +1,109 @@
-note: these steps were the results from ChatGPT
+Python CMS Manual
 
-###Prerequisites:
-1. python 3.10+
-2. pip(comes with Python)
+This guide explains how to set up and run the Python CMS from scratch, including installing Python, setting up the environment, and running the CMS locally.
 
-###Step 1: Create a virtual environment in vs code (Windows):
-type the following:
-1. python -m venv venv
-2.  venv\Scripts\activate
+1. Install Python
 
-###Step 2: Install dependencies:
-type the following:
+Go to the official Python website: https://www.python.org/downloads/
+
+Download the latest stable version of Python (recommended 3.11 or higher).
+
+Run the installer:
+
+On Windows: Make sure to check Add Python to PATH before clicking Install.
+
+On Mac or Linux: Follow the installer instructions or use a package manager (e.g., brew install python on Mac).
+
+Verify installation:
+Open a terminal or command prompt and type:
+
+python --version
+
+
+It should display the Python version installed.
+
+2. Install Git
+
+Go to https://git-scm.com/downloads
+
+Download and install Git for your system.
+
+Verify installation:
+
+git --version
+
+3. Clone the CMS repository
+
+Open a terminal or command prompt.
+
+Navigate to the folder where you want to store the project:
+
+cd path/to/your/projects
+
+
+Clone the repository:
+
+git clone https://github.com/yourusername/pythoncms.git
+
+
+Enter the project folder:
+
+cd pythoncms
+
+4. Create a virtual environment
+
+A virtual environment ensures the project’s dependencies are separate from your system Python.
+
+Create the virtual environment:
+
+python -m venv venv
+
+
+Activate the virtual environment:
+
+Windows:
+
+venv\Scripts\activate
+
+
+Mac/Linux:
+
+source venv/bin/activate
+
+
+You should see (venv) at the start of your terminal prompt.
+
+5. Install dependencies
+
+Make sure you are in the project folder and the virtual environment is active.
+
+Install required packages:
+
 pip install -r requirements.txt
 
-###Step 3: Set the database:
-type the following:
-1. python manage.py makemigrations
-2. python manage.py migrate
+6. Set up the database
 
-###Step 4: Create superuser:
-type the following:
+This CMS uses SQLite by default (no extra installation needed).
+
+Apply migrations:
+
+python manage.py migrate
+
+
+Create a superuser to access the admin panel:
+
 python manage.py createsuperuser
 
-###Step 5: Collect static file:
-type the following:
-python manage.py collectstatic
 
-###Step 6: Run the server:
-type the following:
+Enter a username, email, and password when prompted.
+
+7. Run the development server
+
+Start the Django development server:
+
 python manage.py runserver
 
+
+Open a browser and go to:
+
+http://127.0.0.1:8000/
