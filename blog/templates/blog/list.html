@@ -86,7 +86,7 @@
                     >
                 {% if b.active %}Published{% else %}Unpublished{% endif %}</button></td>
             <td>
-                <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-pencil-square"></i></a>
+                <a href="{% url 'blog_edit' b.id %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil-square"></i></a>
         
                 <!-- Article row delete button -->
                 <a href="#" 

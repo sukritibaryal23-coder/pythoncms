@@ -47,6 +47,27 @@ def create_blog(request):
         'homepage': homepage
     })
 
+def edit_blog(request, id):
+    blog = get_object_or_404(Blog, id=id)  # Get the blog or 404
+    session_filter = request.session.get('homepage_filter', '0')
+    homepage = (session_filter == '1')
+
+    if request.method == 'POST':
+        form = BlogForm(request.POST, instance=blog)  # Bind to existing instance
+        if form.is_valid():
+            blog = form.save(commit=False)
+            blog.homepage = homepage  # Update homepage value if needed
+            blog.save()
+            return redirect('blog_list')
+    else:
+        form = BlogForm(instance=blog, initial={'homepage': homepage})
+
+    return render(request, 'blog/form.html', {
+        'form': form,
+        'homepage': homepage,
+        'blog': blog,  # Pass to template in case you need it
+    })
+
 def sort(request, module):
     data = json.loads(request.body)
     order = data.get('order', [])
