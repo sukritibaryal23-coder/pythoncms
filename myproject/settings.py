@@ -141,14 +141,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_CONFIGS = {
     'default': {
-        'toolbar': 'full',  # full toolbar with source button
+        'toolbar': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['HorizontalRule'],
+            ['RemoveFormat'],
+            ['Source'],
+        ],
         'height': 300,
-        'width': '100%',
-        'extraPlugins': ','.join([
-            'codesnippet',   # optional for code blocks
-        ]),
-    },
+    }
 }
+
 # Tell Django where your login page is
 LOGIN_URL = '/core/login/'
 

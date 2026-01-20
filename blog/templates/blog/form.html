@@ -1,19 +1,82 @@
 {% extends "base.html" %}
 {% block content %}
-
-<h1>
-        Create {% if homepage %}Homepage{% else %}Inner Page{% endif %} Blog
-    </h1>
-
+<div class="d-flex justify-content-end position-sticky mt-2" style="top: 50px; z-index: 1020;">
+    <a href="{% url 'blog_list' %}" class="btn btn-primary">
+        Back
+    </a>
+</div>
+<h3>
+    {% if form.instance.pk %}
+        Edit {{ form.instance.title }}<small style="font-size: 0.5em; color: gray; margin-left: 5px;">{% if homepage %} Homepage Blog{% else %} Inner Page Blog{% endif %} </small>
+    {% else %}
+        Add New <small style="font-size: 0.5em; color: gray; margin-left: 5px;">{% if homepage %} Homepage Blog{% else %} Inner Page Blog{% endif %} </small>
+    {% endif %}
+    </h3>
+    {{ form.media }}
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        
-        <div style="margin-top: 20px;">
-            <button type="submit">Submit</button>
+           {{ form.title.label_tag }}<br>
+            {{ form.title }}
+            <br><br>
             
-            <a href="{% url 'blog_list' %}" class="btn-cancel">Cancel</a>
+            {{ form.subtitle.label_tag }}<br>
+            {{ form.subtitle }}<br><br>
+
+            {{ form.content.label_tag }}<br>
+            {{ form.content }}<br>
+            
+            {{ form.active.label_tag }}
+            {{ form.active }}<br><br>
+            <input type="hidden" name="metadata_opened" id="metadata_opened" value="0">
+
+<input type="hidden" name="metadata_opened" id="metadata_opened" value="0">
+
+<button class="btn btn-secondary mb-3 d-flex justify-content-between align-items-center"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#metadata-section"
+        aria-expanded="false">
+    Metadata
+    <i class="bi bi-chevron-down ms-2"></i>
+</button>
+
+<div class="collapse" id="metadata-section">
+    <div class="card card-body">
+        <div class="mb-3">
+            {{ form.meta_title.label_tag }}<br>
+            {{ form.meta_title }}
+            <small class="text-muted">
+                <span id="title-left">60</span> characters left
+            </small>
         </div>
+
+        <div class="mb-3">
+            {{ form.meta_keywords.label_tag }}<br>
+            {{ form.meta_keywords }}
+            <small class="text-muted">
+                <span id="keywords-left">250</span> characters left
+            </small>
+        </div>
+
+        <div class="mb-3">
+            {{ form.meta_description.label_tag }}<br>
+            {{ form.meta_description }}
+            <small class="text-muted">
+                <span id="description-left">160</span> characters left
+            </small>
+        </div>
+    </div>
+</div>
+
+
+        <div>
+        <button type="submit" name="action" value="save" class="btn btn-success">Save</button>
+        <button type="submit" name="action" value="save_more" class="btn btn-success">Save & More</button>
+        <button type="submit" name="action" value="save_quit" class="btn btn-success">Save & Quit</button>
+
+    </div>
     </form>
 
+{% load static %}
+<script src="{% static 'js/blog.js' %}"></script>
 {% endblock %}

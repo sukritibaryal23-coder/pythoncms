@@ -4,7 +4,7 @@ from .models import Blog
 class BlogForm(forms.ModelForm):
     class Meta:
         model = Blog
-        fields = ['title', 'subtitle', 'content','homepage','active']
+        fields = ['title', 'subtitle', 'content','homepage','active', 'meta_title', 'meta_keywords', 'meta_description']
         widgets = {
             # This keeps the field in the form but hides it from the user's eyes
             'homepage': forms.HiddenInput(),
