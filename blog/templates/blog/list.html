@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<style>
+    /* The specific drag handle style */
+    .drag-handle { 
+        cursor: grab; /* Shows the open hand icon */
+        color: #999;
+        font-size: 18px;
+        text-align: center;
+        width: 40px;
+        transition: color 0.2s;
+    }
+    
+    .drag-handle:hover { color: #333; }
+    .drag-handle:active { cursor: grabbing; } /* Shows closed hand icon while dragging */
+
+    /* Ghosting effect (the row left behind) */
+    .sortable-ghost {
+        opacity: 0.3;
+        background-color: #f0f0f0 !important;
+    }
+
+    /* Success message badge */
+    .success-badge { 
+        display: none; position: fixed; top: 20px; right: 20px; 
+        background: #28a745; color: white; padding: 12px 24px; 
+        border-radius: 4px; z-index: 9999; font-weight: bold;
+    }
+</style>
+<div id="status-toggle-message"></div>
+<div id="action-message"></div>
+
+<header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    
+    <div style="display:flex; align-items:center; gap:12px;">
+        <h2 style="margin:0;">Blogs</h2>
+        <div id="saveMsg" class="success-badge">Sorted</div >
+        <form method="get" id="homepage-filter-form" style="margin:0;">
+            <select name="homepage" class="form-select" onchange="this.form.submit()" style="max-width: 400px;">
+                <option value="1" {% if current_filter == '1' %}selected{% endif %}>
+                    Homepage
+                </option>
+                <option value="0" {% if current_filter == '0' %}selected{% endif %}>
+                    Inner Page
+                </option>
+            </select>
+        </form>
+    </div>
+
+<a href="{% url 'create_blog' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Add New
+</a>
+</header><hr><br>
+
+
+
+<table id="listTable" class="table table-striped table-hover" style="width:100%" data-sort-url="{% url 'sort' 'blog' %}">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th> 
+            <th style="width: 50px;"></th> 
+            <th><input type="checkbox" id="select-all"></th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Actions</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in list %}
+        <tr data-id="{{ b.id }}">
+            <td>{{ b.position }}</td>
+            <td class="drag-handle"><i class="bi bi-grip-vertical"></i></td> 
+            <td><input type="checkbox" name="selected_blog" value="{{ b.id }}"></td>
+            <td>{{ b.title }}</td>
+            <td> <button
+                        type="button"
+                        class="btn btn-sm toggle-status-btn {% if b.active %}btn-success{% else %}btn-secondary{% endif %}"
+                        data-id="{{ b.id }}"
+                    >
+                {% if b.active %}Published{% else %}Unpublished{% endif %}</button></td>
+            <td>
+                <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-pencil-square"></i></a>
+        
+                <!-- Article row delete button -->
+                <a href="#" 
+                    class="btn btn-sm btn-danger delete-blog-btn" 
+                    data-id="{{ b.id }}">
+                    <i class="bi bi-trash"></i>
+                </a>
+
+            </td>
+            
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% load static %}
+<script src="{% static 'js/blog.js' %}"></script>
+{% endblock %}

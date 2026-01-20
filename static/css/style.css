@@ -54,3 +54,66 @@
 body{
     background-color: #ffffff;
 }
+
+/* === DataTables search styled as Bootstrap input-group === */
+.dataTables_filter {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.75rem;
+}
+
+.dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-weight: normal;
+}
+
+/* Search input */
+.dataTables_filter input {
+    border-radius: 0.375rem 0 0 0.375rem;
+    border-right: 0;
+    height: 38px;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Fake button with icon */
+.dataTables_filter::after {
+    content: "\f52a"; /* bi-search */
+    font-family: "Bootstrap-icons";
+    background: #0d6efd;
+    color: #fff;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    border-radius: 0 0.375rem 0.375rem 0;
+    height: 38px;
+    cursor: pointer;
+}
+
+/* Focus fixes */
+.dataTables_filter input:focus {
+    box-shadow: none;
+    border-color: #0d6efd;
+}
+/* Remove "Search:" text */
+.dataTables_filter label {
+    font-size: 0;
+}
+
+/* Restore input visibility */
+.dataTables_filter input {
+    font-size: 0.95rem;
+    margin-left: 0 !important;
+    padding: 0.375rem 0.75rem;
+    height: 38px;
+    border-radius: 0.375rem;
+}
+
+/* Optional: align right like Bootstrap */
+.dataTables_filter {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.75rem;
+}
+

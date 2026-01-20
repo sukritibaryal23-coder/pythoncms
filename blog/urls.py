@@ -1,0 +1,11 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.blog_list, name='blog_list'),
+    path('create/', views.create_blog, name='create_blog'),
+    path('sort/<str:module>/', views.sort, name='sort'),  # ✅ ADD THIS
+    path('delete/<int:id>/', views.blog_delete, name='blog_delete'),
+    path('toggle-status/<int:id>/', views.blog_toggle_status, name='blog_toggle_status'),
+
+]

@@ -29,7 +29,7 @@ urlpatterns = [
     path("recycle-bin/", include("recyclebin.urls")),
     path("core/", include("core.urls")),
     path('media/', include('mediamgmt.urls', namespace='mediamgmt')),
-
+    path("blog/", include("blog.urls")),
 ]
 
 if settings.DEBUG:
