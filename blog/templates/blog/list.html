@@ -6,33 +6,6 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-<style>
-    /* The specific drag handle style */
-    .drag-handle { 
-        cursor: grab; /* Shows the open hand icon */
-        color: #999;
-        font-size: 18px;
-        text-align: center;
-        width: 40px;
-        transition: color 0.2s;
-    }
-    
-    .drag-handle:hover { color: #333; }
-    .drag-handle:active { cursor: grabbing; } /* Shows closed hand icon while dragging */
-
-    /* Ghosting effect (the row left behind) */
-    .sortable-ghost {
-        opacity: 0.3;
-        background-color: #f0f0f0 !important;
-    }
-
-    /* Success message badge */
-    .success-badge { 
-        display: none; position: fixed; top: 20px; right: 20px; 
-        background: #28a745; color: white; padding: 12px 24px; 
-        border-radius: 4px; z-index: 9999; font-weight: bold;
-    }
-</style>
 <div id="status-toggle-message"></div>
 <div id="action-message"></div>
 

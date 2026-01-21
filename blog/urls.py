@@ -9,6 +9,7 @@ urlpatterns = [
     path('delete/<int:id>/', views.blog_delete, name='blog_delete'),
     path('toggle-status/<int:id>/', views.blog_toggle_status, name='blog_toggle_status'),
     path('bulk-action/', views.blog_bulk_action, name='blog_bulk_action'),
+    path("check-slug/", views.check_slug, name="check_slug"),
 
 
 ]

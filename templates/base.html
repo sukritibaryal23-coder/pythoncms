@@ -74,10 +74,10 @@
                 </a>
             </li>
             <li class="nav-item">
-                 <a class="nav-link {% if request.resolver_match.url_name == 'media_list' %}active{% endif %}" 
-                href="{% url 'mediamgmt:media_list' %}">
-                    <i class="bi bi-images"></i>
-                    Media
+                 <a class="nav-link {% if request.resolver_match.url_name == 'blog_list' %}active{% endif %}" 
+                href="{% url 'blog_list' %}">
+                    <i class="bi bi-journal-text"></i>
+                    Blog
                 </a>
             </li>
 

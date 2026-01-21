@@ -28,8 +28,8 @@ urlpatterns = [
     path("dashboard/", include("dashboard.urls")),
     path("recycle-bin/", include("recyclebin.urls")),
     path("core/", include("core.urls")),
-    path('media/', include('mediamgmt.urls', namespace='mediamgmt')),
     path("blog/", include("blog.urls")),
+    path('contentmgmt/media/', include('contentmgmt.urls', namespace='contentmgmt')),
 ]
 
 if settings.DEBUG:

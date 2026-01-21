@@ -8,6 +8,16 @@ from django.db.models import F
 from django.contrib import messages
 from django.urls import reverse
 
+def check_slug(request):
+    slug = request.GET.get("slug")
+    blog_id = request.GET.get("id")
+
+    qs = Blog.objects.filter(slug=slug)
+    if blog_id:
+        qs = qs.exclude(id=blog_id)
+
+    return JsonResponse({"exists": qs.exists()})
+
 def blog_list(request):
     # 1. Capture the parameter if it exists in the URL
     homepage_param = request.GET.get('homepage')

@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'articles',
     'ckeditor',
     'ckeditor_uploader',
-    'mediamgmt',
+    'contentmgmt',
     'blog',
     
 ]

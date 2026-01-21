@@ -1,3 +1,4 @@
+console.log("BLOG JS LOADED");
 $(document).ready(function() {
     // 1. Get CSRF Token
     function getCookie(name) {
@@ -278,7 +279,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const collapseEl = document.getElementById("metadata-section");
     const button = document.querySelector('[data-bs-target="#metadata-section"]');
-    const icon = button.querySelector("i");
+    if (button) {
+        const icon = button.querySelector("i");
+    }
+
 
     const metadataOpened = document.getElementById("metadata_opened");
 
@@ -326,7 +330,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
-
 
 
 

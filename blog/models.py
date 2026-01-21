@@ -6,6 +6,7 @@ from django.utils.text import slugify
 class Blog(SoftDeleteModel):
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
     content = models.TextField(blank=True)
     active = models.BooleanField(default=True)
     homepage = models.BooleanField(default=False)
@@ -17,6 +18,13 @@ class Blog(SoftDeleteModel):
     class Meta:
         ordering = ['position']
 
-
-    def __str__(self):
-        return self.title
+def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Blog.objects.filter(slug=slug).exclude(id=self.id).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)

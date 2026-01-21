@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <div class="d-flex justify-content-end position-sticky mt-2" style="top: 50px; z-index: 1020;">
     <a href="{% url 'blog_list' %}" class="btn btn-primary">
@@ -22,11 +23,63 @@
             {{ form.subtitle.label_tag }}<br>
             {{ form.subtitle }}<br><br>
 
-            {{ form.content.label_tag }}<br>
-            {{ form.content }}<br>
-            
+            {{ form.slug.label_tag }}<br>
+            {{ form.slug }}
+            <span id="slug-warning" style="color:red; display:none;">
+                Slug already exists!
+            </span>
+            <br><br>
+
+           {{ form.content.label_tag }}<br>
+{{ form.content }}<br>
+<button type="button" id="add-readmore" class="btn btn-secondary mb-2">
+    Read More
+</button><br>
+
+<!-- CKEditor 4 CDN -->
+<script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+
+<style>
+hr.readmore {
+    border: none;
+    border-top: 2px dashed #333;
+    margin: 20px 0;
+}
+</style>
+
+<script>
+    // Initialize CKEditor
+    var editor = CKEDITOR.replace('{{ form.content.id_for_label }}');
+
+    // Handle external Read More button
+    document.getElementById('add-readmore').addEventListener('click', function() {
+        var data = editor.getData();
+
+        // Check for unique marker
+        if (data.indexOf('data-readmore="true"') !== -1) {
+            alert('Only one Read More line is allowed!');
+            return;
+        }
+
+        // Insert unique stylised readmore line
+        editor.insertHtml('<hr class="readmore" data-readmore="true">');
+    });
+</script>
+
+
+            <style>
+            hr.readmore {
+                border: none;
+                border-top: 2px dashed #333;
+                margin: 20px 0;
+            }
+            </style>
+
+
+
             {{ form.active.label_tag }}
             {{ form.active }}<br><br>
+            
             <input type="hidden" name="metadata_opened" id="metadata_opened" value="0">
 
 <input type="hidden" name="metadata_opened" id="metadata_opened" value="0">
@@ -77,6 +130,153 @@
     </div>
     </form>
 
-{% load static %}
-<script src="{% static 'js/blog.js' %}"></script>
+<!-- slug auto generate -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const titleInput = document.getElementById("id_title");
+    const slugInput = document.getElementById("id_slug");
+
+    if (!titleInput || !slugInput) {
+        console.log("Slug inputs not found");
+        return;
+    }
+
+    titleInput.addEventListener("input", function () {
+        const slug = this.value
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+
+        slugInput.value = slug;
+    });
+
+});
+</script>
+
+<!-- slug unique check -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const titleInput = document.getElementById("id_title");
+    const slugInput = document.getElementById("id_slug");
+    const warning = document.getElementById("slug-warning");
+
+    // Blog ID for edit page, empty on create
+    const blogId = "{{ form.instance.pk|default:'' }}";
+
+    if (!titleInput || !slugInput || !warning) return;
+
+    let manualEdit = false;
+
+    // Auto-generate slug from title
+    titleInput.addEventListener("input", function () {
+        if (manualEdit) return;
+
+        const slug = this.value
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+
+        slugInput.value = slug;
+
+        checkSlug(slug);
+    });
+
+    // Check slug when typing manually
+    slugInput.addEventListener("input", function () {
+        manualEdit = true;
+        checkSlug(this.value);
+    });
+
+    function checkSlug(slug) {
+        if (!slug) {
+            warning.style.display = "none";
+            return;
+        }
+
+        // Build URL for checking slug
+        let url = `/blog/check-slug/?slug=${encodeURIComponent(slug)}`;
+        if (blogId) {
+            url += `&id=${blogId}`;
+        }
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                warning.style.display = data.exists ? "inline" : "none";
+            })
+            .catch(err => {
+                console.error(err);
+                warning.style.display = "none";
+            });
+    }
+
+});
+</script>
+
+<!-- metadata section  -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+    const collapseEl = document.getElementById("metadata-section");
+    const button = document.querySelector('[data-bs-target="#metadata-section"]');
+    if (button) {
+        const icon = button.querySelector("i");
+    }
+
+
+    const metadataOpened = document.getElementById("metadata_opened");
+
+    const titleInput = document.getElementById("id_meta_title");
+    const keywordsInput = document.getElementById("id_meta_keywords");
+    const descriptionInput = document.getElementById("id_meta_description");
+
+    const titleLeft = document.getElementById("title-left");
+    const keywordsLeft = document.getElementById("keywords-left");
+    const descriptionLeft = document.getElementById("description-left");
+
+    if (!titleInput || !keywordsInput || !descriptionInput) return;
+
+    function updateCounters() {
+        titleLeft.textContent = 60 - titleInput.value.length;
+        keywordsLeft.textContent = 250 - keywordsInput.value.length;
+        descriptionLeft.textContent = 160 - descriptionInput.value.length;
+    }
+
+    titleInput.addEventListener("input", updateCounters);
+    keywordsInput.addEventListener("input", updateCounters);
+    descriptionInput.addEventListener("input", updateCounters);
+
+    collapseEl.addEventListener("shown.bs.collapse", function () {
+        metadataOpened.value = "1";
+        titleInput.required = true;
+        keywordsInput.required = true;
+        descriptionInput.required = true;
+        updateCounters(); // 🔥 critical
+    });
+
+    collapseEl.addEventListener("hidden.bs.collapse", function () {
+        metadataOpened.value = "0";
+        titleInput.required = false;
+        keywordsInput.required = false;
+        descriptionInput.required = false;
+    });
+
+    collapseEl.addEventListener("show.bs.collapse", function () {
+        icon.classList.replace("bi-chevron-down", "bi-chevron-up");
+    });
+
+    collapseEl.addEventListener("hide.bs.collapse", function () {
+        icon.classList.replace("bi-chevron-up", "bi-chevron-down");
+    });
+
+});
+</script>
+
+
+<!-- External blog.js (optional, after DOM ready) -->
+<script src="{% static 'js/blogform.js' %}"></script>
 {% endblock %}
