@@ -125,14 +125,14 @@ def blog_delete(request, id):
             blog.save()
             return JsonResponse({
             "success": True,
-            "message": "Article deleted successfully.",
+            "message": "Blog deleted successfully.",
         })
         else:
             # Hard delete if no is_deleted field
             blog.delete()
             return JsonResponse({
             "success": True,
-            "message": "Article deleted successfully.",
+            "message": "Blog deleted successfully.",
         })
 
         return JsonResponse({

@@ -1,71 +1,30 @@
-
-
-//slug
+console.log("BLOG JS LOADED");
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const titleInput = document.getElementById("id_title");
-    const slugInput = document.getElementById("id_slug");
+    const titleInput = document.querySelector('[name="title"]');
+    const slugInput  = document.querySelector('[name="slug"]');
+    const warning    = document.getElementById("slug-warning");
+    const blogIdEl   = document.getElementById("blog-id");
 
-    if (!titleInput || !slugInput) {
-        console.log("Slug inputs not found");
-        return;
-    }
+    if (!titleInput || !slugInput) return;
 
-    titleInput.addEventListener("input", function () {
-        const slug = this.value
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "");
-
-        slugInput.value = slug;
-    });
-
-});
-
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const titleInput = document.getElementById("id_title");
-    const slugInput = document.getElementById("id_slug");
-    const warning = document.getElementById("slug-warning");
-
-    // Blog ID for edit page, empty on create
-    const blogId = "{{ form.instance.pk|default:'' }}";
-
-    if (!titleInput || !slugInput || !warning) return;
+    const blogId = blogIdEl ? blogIdEl.value : "";
 
     let manualEdit = false;
 
-    // Auto-generate slug from title
-    titleInput.addEventListener("input", function () {
-        if (manualEdit) return;
-
-        const slug = this.value
+    function slugify(text) {
+        return text
             .toLowerCase()
             .trim()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "");
+    }
 
-        slugInput.value = slug;
-
-        checkSlug(slug);
-    });
-
-    // Check slug when typing manually
-    slugInput.addEventListener("input", function () {
-        manualEdit = true;
-        checkSlug(this.value);
-    });
-
+    
     function checkSlug(slug) {
-        if (!slug) {
-            warning.style.display = "none";
-            return;
-        }
+        if (!slug || !warning) return;
 
-        // Build URL for checking slug
         let url = `/blog/check-slug/?slug=${encodeURIComponent(slug)}`;
         if (blogId) {
             url += `&id=${blogId}`;
@@ -77,9 +36,86 @@ document.addEventListener("DOMContentLoaded", function () {
                 warning.style.display = data.exists ? "inline" : "none";
             })
             .catch(err => {
-                console.error(err);
+                console.error("Slug check failed:", err);
                 warning.style.display = "none";
             });
     }
+
+    titleInput.addEventListener("input", function () {
+        if (manualEdit) return;
+
+        const slug = slugify(this.value);
+        slugInput.value = slug;
+        checkSlug(slug);
+    });
+
+    slugInput.addEventListener("input", function () {
+        manualEdit = true;
+        checkSlug(this.value);
+    });
+
+});
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const collapseEl = document.getElementById("metadata-section");
+    const button = document.querySelector('[data-bs-target="#metadata-section"]');
+
+    let icon = null; // ✅ declare in outer scope
+
+    if (button) {
+        icon = button.querySelector("i");
+    }
+
+    const metadataOpened = document.getElementById("metadata_opened");
+
+    const titleInput = document.getElementById("id_meta_title");
+    const keywordsInput = document.getElementById("id_meta_keywords");
+    const descriptionInput = document.getElementById("id_meta_description");
+
+    const titleLeft = document.getElementById("title-left");
+    const keywordsLeft = document.getElementById("keywords-left");
+    const descriptionLeft = document.getElementById("description-left");
+
+    if (!collapseEl || !titleInput || !keywordsInput || !descriptionInput) return;
+
+    function updateCounters() {
+        titleLeft.textContent = 60 - titleInput.value.length;
+        keywordsLeft.textContent = 250 - keywordsInput.value.length;
+        descriptionLeft.textContent = 160 - descriptionInput.value.length;
+    }
+
+    titleInput.addEventListener("input", updateCounters);
+    keywordsInput.addEventListener("input", updateCounters);
+    descriptionInput.addEventListener("input", updateCounters);
+
+    collapseEl.addEventListener("shown.bs.collapse", function () {
+        metadataOpened.value = "1";
+        titleInput.required = true;
+        keywordsInput.required = true;
+        descriptionInput.required = true;
+        updateCounters();
+    });
+
+    collapseEl.addEventListener("hidden.bs.collapse", function () {
+        metadataOpened.value = "0";
+        titleInput.required = false;
+        keywordsInput.required = false;
+        descriptionInput.required = false;
+    });
+
+    collapseEl.addEventListener("show.bs.collapse", function () {
+        if (icon) {
+            icon.classList.replace("bi-chevron-down", "bi-chevron-up");
+        }
+    });
+
+    collapseEl.addEventListener("hide.bs.collapse", function () {
+        if (icon) {
+            icon.classList.replace("bi-chevron-up", "bi-chevron-down");
+        }
+    });
 
 });
