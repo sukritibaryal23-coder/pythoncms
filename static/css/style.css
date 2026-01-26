@@ -140,3 +140,30 @@ hr.readmore {
     margin: 20px 0;
 }
 
+.table-fixed {
+    table-layout: fixed;
+}
+
+.table-fixed th,
+.table-fixed td {
+    vertical-align: middle;
+}
+
+.drag-handle {
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.text-truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.text-nowrap {
+    white-space: nowrap;
+}
+

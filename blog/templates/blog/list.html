@@ -59,7 +59,7 @@
                 <td>{{ b.title }}</td>
                 <td> <button
                             type="button"
-                            class="btn btn-sm toggle-status-btn {% if b.active %}btn-success{% else %}btn-secondary{% endif %}"
+                            class="btn btn-sm toggle-status-btn badge rounded-pill px-3 py-2 {% if b.active %}btn-success{% else %}btn-secondary{% endif %}"
                             data-id="{{ b.id }}"
                         >
                     {% if b.active %}Published{% else %}Unpublished{% endif %}</button></td>

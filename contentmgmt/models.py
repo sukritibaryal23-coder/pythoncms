@@ -33,6 +33,7 @@ class MediaFile(models.Model):
     name = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
 
+
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = self.file.name

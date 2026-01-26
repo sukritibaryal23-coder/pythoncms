@@ -1,0 +1,254 @@
+[33mcommit 923854005eae0a2e996a0ec0a4f226adcc549787[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Mon Jan 26 12:25:02 2026 +0545
+
+    Add .gitignore to ignore large media and temp files
+
+ .../2026/01/26/127.0.0.1_8000_articles_add_.png        | Bin [31m46455[m -> [32m0[m bytes
+ .../media_files/2026/01/26/Alphabet_Inc.-Logo.wine.png | Bin [31m34475[m -> [32m0[m bytes
+ .../01/26/Sukriti_Baryal_c7466782_ASE_component2.pdf   | Bin [31m534850[m -> [32m0[m bytes
+ media/media_files/2026/01/26/cupcake.jfif              | Bin [31m5900[m -> [32m0[m bytes
+ media/media_files/2026/01/26/cupcake_moOZE6t.jfif      | Bin [31m5900[m -> [32m0[m bytes
+ media/media_files/2026/01/26/google-assistant.png      | Bin [31m25236[m -> [32m0[m bytes
+ media/media_files/2026/01/26/google-assistant_1.png    | Bin [31m25236[m -> [32m0[m bytes
+ .../2026/01/26/google-assistant_1_3Gkao8v.png          | Bin [31m25236[m -> [32m0[m bytes
+ .../2026/01/26/google-assistant_1_E2BkskN.png          | Bin [31m25236[m -> [32m0[m bytes
+ .../2026/01/26/google-assistant_1_F2fXQpr.png          | Bin [31m25236[m -> [32m0[m bytes
+ .../2026/01/26/google-assistant_1_zGk8BZI.png          | Bin [31m25236[m -> [32m0[m bytes
+ 11 files changed, 0 insertions(+), 0 deletions(-)
+
+[33mcommit dea6be8f302527a034f229fa330982b5fd066000[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Mon Jan 26 12:19:17 2026 +0545
+
+    Add .gitignore to ignore large media and temp files
+
+ .gitignore | 16 [32m++++++++++++++++[m
+ 1 file changed, 16 insertions(+)
+
+[33mcommit 941df31a99030688914f86b0ccc8d47b85c54a93[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Mon Jan 26 12:14:52 2026 +0545
+
+    Remove large video from repo
+
+ ..._Future_Part_III_1990_full_HD_on_SFlix_Free.mp4 | Bin [31m1161575582[m -> [32m0[m bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+[33mcommit e38e4fe5807329a4d9a2196f37ddcb895348c632[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Mon Jan 26 12:11:04 2026 +0545
+
+    media management file upload
+
+ contentmgmt/__pycache__/admin.cpython-310.pyc | Bin [31m186[m -> [32m258[m bytes
+ contentmgmt/admin.py                          |   4 [32m+++[m[31m-[m
+ db.sqlite3                                    | Bin [31m184320[m -> [32m184320[m bytes
+ 3 files changed, 3 insertions(+), 1 deletion(-)
+
+[33mcommit a2daba9d2bb693512052a394314b7a53e7dd4333[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Mon Jan 26 12:03:50 2026 +0545
+
+    media management file upload
+
+ blog/__pycache__/models.cpython-310.pyc            | Bin [31m1412[m -> [32m1412[m bytes
+ blog/__pycache__/views.cpython-310.pyc             | Bin [31m4222[m -> [32m4222[m bytes
+ blog/migrations/0001_initial.py                    |   7 [32m+[m[31m-[m
+ ...meta_description_blog_meta_keywords_and_more.py |  28 [31m--[m
+ blog/migrations/0004_alter_blog_content.py         |  19 [31m-[m
+ blog/migrations/0005_alter_blog_content.py         |  18 [31m-[m
+ blog/migrations/0006_blog_slug.py                  |  18 [31m-[m
+ blog/migrations/0007_alter_blog_slug.py            |  18 [31m-[m
+ blog/migrations/0008_alter_blog_slug.py            |  18 [31m-[m
+ .../__pycache__/0001_initial.cpython-310.pyc       | Bin [31m1032[m -> [32m1146[m bytes
+ .../0009_blog_updated_at.cpython-310.pyc           | Bin [31m0[m -> [32m578[m bytes
+ .../0010_remove_blog_updated_at.cpython-310.pyc    | Bin [31m0[m -> [32m519[m bytes
+ blog/templates/blog/list.html                      |   2 [32m+[m[31m-[m
+ contentmgmt/__pycache__/models.cpython-310.pyc     | Bin [31m1910[m -> [32m1910[m bytes
+ contentmgmt/__pycache__/urls.cpython-310.pyc       | Bin [31m600[m -> [32m665[m bytes
+ contentmgmt/__pycache__/views.cpython-310.pyc      | Bin [31m2152[m -> [32m3136[m bytes
+ .../migrations/0002_mediafile_updated_at.py        |  18 [32m+[m
+ .../migrations/0003_remove_mediafile_updated_at.py |   8 [32m+[m[31m-[m
+ ...004_alter_folder_parent_alter_mediafile_file.py |  24 [32m+[m
+ ...005_alter_folder_parent_alter_mediafile_file.py |  24 [32m+[m
+ .../0002_mediafile_updated_at.cpython-310.pyc      | Bin [31m0[m -> [32m595[m bytes
+ ...003_remove_mediafile_updated_at.cpython-310.pyc | Bin [31m0[m -> [32m549[m bytes
+ ...der_parent_alter_mediafile_file.cpython-310.pyc | Bin [31m0[m -> [32m859[m bytes
+ ...der_parent_alter_mediafile_file.cpython-310.pyc | Bin [31m0[m -> [32m889[m bytes
+ contentmgmt/models.py                              |   1 [32m+[m
+ contentmgmt/templates/contentmgmt/dashboard.html   | 524 [32m+++++++++++++[m[31m--------[m
+ .../__pycache__/contentmgmt_extras.cpython-310.pyc | Bin [31m504[m -> [32m676[m bytes
+ contentmgmt/templatetags/contentmgmt_extras.py     |  20 [32m+[m[31m-[m
+ contentmgmt/urls.py                                |   1 [32m+[m
+ contentmgmt/views.py                               |  59 [32m++[m[31m-[m
+ db.sqlite3                                         | Bin [31m180224[m -> [32m184320[m bytes
+ .../2026/01/26/127.0.0.1_8000_articles_add_.png    | Bin [31m0[m -> [32m46455[m bytes
+ .../2026/01/26/Alphabet_Inc.-Logo.wine.png         | Bin [31m0[m -> [32m34475[m bytes
+ .../26/Sukriti_Baryal_c7466782_ASE_component2.pdf  | Bin [31m0[m -> [32m534850[m bytes
+ ..._Future_Part_III_1990_full_HD_on_SFlix_Free.mp4 | Bin [31m0[m -> [32m1161575582[m bytes
+ media/media_files/2026/01/26/cupcake.jfif          | Bin [31m0[m -> [32m5900[m bytes
+ media/media_files/2026/01/26/cupcake_moOZE6t.jfif  | Bin [31m0[m -> [32m5900[m bytes
+ media/media_files/2026/01/26/google-assistant.png  | Bin [31m0[m -> [32m25236[m bytes
+ .../media_files/2026/01/26/google-assistant_1.png  | Bin [31m0[m -> [32m25236[m bytes
+ .../2026/01/26/google-assistant_1_3Gkao8v.png      | Bin [31m0[m -> [32m25236[m bytes
+ .../2026/01/26/google-assistant_1_E2BkskN.png      | Bin [31m0[m -> [32m25236[m bytes
+ .../2026/01/26/google-assistant_1_F2fXQpr.png      | Bin [31m0[m -> [32m25236[m bytes
+ .../2026/01/26/google-assistant_1_zGk8BZI.png      | Bin [31m0[m -> [32m25236[m bytes
+ static/css/style.css                               |  27 [32m++[m
+ 44 files changed, 497 insertions(+), 337 deletions(-)
+
+[33mcommit 4cee552159c0b1a59b86239a244903b733cc9f57[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Thu Jan 22 17:22:43 2026 +0545
+
+    blog
+
+ blog/__pycache__/views.cpython-310.pyc        | Bin [31m4253[m -> [32m4222[m bytes
+ blog/templates/blog/form.html                 | 149 [32m+[m[31m-------------------------[m
+ blog/views.py                                 |   4 [32m+[m[31m-[m
+ contentmgmt/__pycache__/views.cpython-310.pyc | Bin [31m2152[m -> [32m2152[m bytes
+ db.sqlite3                                    | Bin [31m180224[m -> [32m180224[m bytes
+ static/css/style.css                          |   1 [32m+[m
+ static/js/blogform.js                         | 136 [32m++++++++++++++[m[31m---------[m
+ templates/base.html                           |   1 [32m+[m
+ 8 files changed, 92 insertions(+), 199 deletions(-)
+
+[33mcommit b4175f719c6db4779ed11921a4c69187cebd540b[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Wed Jan 21 13:14:54 2026 +0545
+
+    new content management
+
+ articles/templates/articles/form.html              |   2 [32m+[m[31m-[m
+ blog/__pycache__/forms.cpython-310.pyc             | Bin [31m696[m -> [32m1092[m bytes
+ blog/__pycache__/models.cpython-310.pyc            | Bin [31m1101[m -> [32m1412[m bytes
+ blog/__pycache__/urls.cpython-310.pyc              | Bin [31m588[m -> [32m634[m bytes
+ blog/__pycache__/views.cpython-310.pyc             | Bin [31m3980[m -> [32m4253[m bytes
+ blog/forms.py                                      |  10 [32m+[m[31m-[m
+ blog/migrations/0006_blog_slug.py                  |  18 [32m++[m
+ blog/migrations/0007_alter_blog_slug.py            |  18 [32m++[m
+ blog/migrations/0008_alter_blog_slug.py            |  18 [32m++[m
+ .../__pycache__/0006_blog_slug.cpython-310.pyc     | Bin [31m0[m -> [32m581[m bytes
+ .../0007_alter_blog_slug.cpython-310.pyc           | Bin [31m0[m -> [32m590[m bytes
+ .../0008_alter_blog_slug.cpython-310.pyc           | Bin [31m0[m -> [32m596[m bytes
+ blog/models.py                                     |  14 [32m+[m[31m-[m
+ blog/templates/blog/form.html                      | 210 [32m++++++++++++++[m[31m-[m
+ blog/templates/blog/list.html                      |  27 [31m--[m
+ blog/urls.py                                       |   1 [32m+[m
+ blog/views.py                                      |  10 [32m+[m
+ {mediamgmt => contentmgmt}/__init__.py             |   0
+ contentmgmt/__pycache__/__init__.cpython-310.pyc   | Bin [31m0[m -> [32m145[m bytes
+ contentmgmt/__pycache__/admin.cpython-310.pyc      | Bin [31m0[m -> [32m186[m bytes
+ contentmgmt/__pycache__/apps.cpython-310.pyc       | Bin [31m0[m -> [32m434[m bytes
+ contentmgmt/__pycache__/forms.cpython-310.pyc      | Bin [31m0[m -> [32m859[m bytes
+ contentmgmt/__pycache__/models.cpython-310.pyc     | Bin [31m0[m -> [32m1910[m bytes
+ contentmgmt/__pycache__/urls.cpython-310.pyc       | Bin [31m0[m -> [32m600[m bytes
+ contentmgmt/__pycache__/views.cpython-310.pyc      | Bin [31m0[m -> [32m2152[m bytes
+ {mediamgmt => contentmgmt}/admin.py                |   0
+ {mediamgmt => contentmgmt}/apps.py                 |   4 [32m+[m[31m-[m
+ contentmgmt/forms.py                               |  12 [32m+[m
+ contentmgmt/migrations/0001_initial.py             |  36 [32m+++[m
+ {mediamgmt => contentmgmt}/migrations/__init__.py  |   0
+ .../__pycache__/0001_initial.cpython-310.pyc       | Bin [31m0[m -> [32m1218[m bytes
+ .../__pycache__/__init__.cpython-310.pyc           | Bin [31m0[m -> [32m156[m bytes
+ contentmgmt/models.py                              |  42 [32m+++[m
+ contentmgmt/templates/contentmgmt/dashboard.html   | 254 [32m++++++++++++++++++[m
+ .../__pycache__/_init__.cpython-310.pyc            | Bin [31m0[m -> [32m157[m bytes
+ .../__pycache__/contentmgmt_extras.cpython-310.pyc | Bin [31m0[m -> [32m504[m bytes
+ contentmgmt/templatetags/_init__.py                |   0
+ contentmgmt/templatetags/contentmgmt_extras.py     |  11 [32m+[m
+ {mediamgmt => contentmgmt}/tests.py                |   0
+ contentmgmt/urls.py                                |  13 [32m+[m
+ contentmgmt/views.py                               |  61 [32m+++++[m
+ db.sqlite3                                         | Bin [31m163840[m -> [32m180224[m bytes
+ mediamgmt/__pycache__/__init__.cpython-310.pyc     | Bin [31m143[m -> [32m0[m bytes
+ mediamgmt/__pycache__/admin.cpython-310.pyc        | Bin [31m184[m -> [32m0[m bytes
+ mediamgmt/__pycache__/apps.cpython-310.pyc         | Bin [31m428[m -> [32m0[m bytes
+ mediamgmt/__pycache__/forms.cpython-310.pyc        | Bin [31m1677[m -> [32m0[m bytes
+ mediamgmt/__pycache__/models.cpython-310.pyc       | Bin [31m1313[m -> [32m0[m bytes
+ mediamgmt/__pycache__/urls.cpython-310.pyc         | Bin [31m885[m -> [32m0[m bytes
+ mediamgmt/__pycache__/views.cpython-310.pyc        | Bin [31m5547[m -> [32m0[m bytes
+ mediamgmt/forms.py                                 |  51 [31m----[m
+ mediamgmt/migrations/0001_initial.py               |  33 [31m---[m
+ ...e_media_mime_type_remove_media_size_and_more.py |  36 [31m---[m
+ ...er_media_options_remove_media_order_and_more.py |  46 [31m----[m
+ ...media_options_remove_media_alt_text_and_more.py |  35 [31m---[m
+ ...ns_rename_position_media_sort_order_and_more.py |  32 [31m---[m
+ ...tions_rename_sort_order_media_order_and_more.py |  35 [31m---[m
+ ...tions_rename_status_media_is_active_and_more.py |  47 [31m----[m
+ ...er_media_options_media_video_source_and_more.py |  32 [31m---[m
+ ...a_options_remove_media_video_source_and_more.py |  30 [31m---[m
+ .../0010_media_video_source_media_youtube_url.py   |  23 [31m--[m
+ ...r_media_file_alter_media_media_type_and_more.py |  28 [31m--[m
+ ...er_media_media_type_alter_media_video_source.py |  23 [31m--[m
+ .../__pycache__/0001_initial.cpython-310.pyc       | Bin [31m1083[m -> [32m0[m bytes
+ ...type_remove_media_size_and_more.cpython-310.pyc | Bin [31m848[m -> [32m0[m bytes
+ ...ons_remove_media_order_and_more.cpython-310.pyc | Bin [31m1044[m -> [32m0[m bytes
+ ..._remove_media_alt_text_and_more.cpython-310.pyc | Bin [31m965[m -> [32m0[m bytes
+ ...ition_media_sort_order_and_more.cpython-310.pyc | Bin [31m976[m -> [32m0[m bytes
+ ...sort_order_media_order_and_more.cpython-310.pyc | Bin [31m857[m -> [32m0[m bytes
+ ...status_media_is_active_and_more.cpython-310.pyc | Bin [31m1155[m -> [32m0[m bytes
+ ...ons_media_video_source_and_more.cpython-310.pyc | Bin [31m969[m -> [32m0[m bytes
+ ...ove_media_video_source_and_more.cpython-310.pyc | Bin [31m852[m -> [32m0[m bytes
+ ..._video_source_media_youtube_url.cpython-310.pyc | Bin [31m800[m -> [32m0[m bytes
+ ...alter_media_media_type_and_more.cpython-310.pyc | Bin [31m903[m -> [32m0[m bytes
+ ...a_type_alter_media_video_source.cpython-310.pyc | Bin [31m823[m -> [32m0[m bytes
+ .../__pycache__/__init__.cpython-310.pyc           | Bin [31m154[m -> [32m0[m bytes
+ mediamgmt/models.py                                |  33 [31m---[m
+ mediamgmt/static/mediamgmt/mediamgmt.js            | 103 [31m--------[m
+ mediamgmt/templates/mediamgmt/media_edit.html      |  13 [31m-[m
+ mediamgmt/templates/mediamgmt/media_form.html      | 128 [31m----------[m
+ mediamgmt/templates/mediamgmt/media_list.html      | 219 [31m----------------[m
+ mediamgmt/templates/mediamgmt/media_table.html     |  18 [31m--[m
+ .../templates/mediamgmt/media_video_form.html      |  88 [31m-------[m
+ .../templates/mediamgmt/partials/media_table.html  |  24 [31m--[m
+ mediamgmt/urls.py                                  |  18 [31m--[m
+ mediamgmt/views.py                                 | 283 [31m---------------------[m
+ myproject/__pycache__/settings.cpython-310.pyc     | Bin [31m2882[m -> [32m2884[m bytes
+ myproject/__pycache__/urls.cpython-310.pyc         | Bin [31m1561[m -> [32m1577[m bytes
+ myproject/settings.py                              |   2 [32m+[m[31m-[m
+ myproject/urls.py                                  |   2 [32m+[m[31m-[m
+ static/css/style.css                               |  38 [32m++[m[31m-[m
+ static/js/blog.js                                  |   7 [32m+[m[31m-[m
+ static/js/blogform.js                              |  85 [32m+++++++[m
+ templates/base.html                                |   8 [32m+[m[31m-[m
+ 93 files changed, 848 insertions(+), 1433 deletions(-)
+
+[33mcommit a401d2116c4bcb3c99b0643922d3aee51c1b1e75[m
+Author: sukritibaryal23-coder <sukritibaryal23@gmail.com>
+Date:   Tue Jan 20 16:25:49 2026 +0545
+
+    bloglist bulk actions, edit. Form meta data
+
+ articles/__pycache__/models.cpython-310.pyc        | Bin [31m1593[m -> [32m1593[m bytes
+ blog/__pycache__/forms.cpython-310.pyc             | Bin [31m651[m -> [32m696[m bytes
+ blog/__pycache__/models.cpython-310.pyc            | Bin [31m944[m -> [32m1101[m bytes
+ blog/__pycache__/urls.cpython-310.pyc              | Bin [31m535[m -> [32m588[m bytes
+ blog/__pycache__/views.cpython-310.pyc             | Bin [31m2741[m -> [32m3980[m bytes
+ blog/forms.py                                      |   2 [32m+[m[31m-[m
+ blog/migrations/0001_initial.py                    |   5 [32m+[m[31m-[m
+ .../0002_blog_deleted_at_blog_is_deleted.py        |  23 [31m----[m
+ blog/migrations/0002_remove_blog_slug.py           |  17 [32m+++[m
+ ...meta_description_blog_meta_keywords_and_more.py |  28 [32m++++[m
+ blog/migrations/0004_alter_blog_content.py         |  19 [32m+++[m
+ blog/migrations/0005_alter_blog_content.py         |  18 [32m+++[m
+ .../__pycache__/0001_initial.cpython-310.pyc       | Bin [31m889[m -> [32m1032[m bytes
+ ...blog_deleted_at_blog_is_deleted.cpython-310.pyc | Bin [31m661[m -> [32m0[m bytes
+ .../0002_remove_blog_slug.cpython-310.pyc          | Bin [31m0[m -> [32m499[m bytes
+ ...ion_blog_meta_keywords_and_more.cpython-310.pyc | Bin [31m0[m -> [32m736[m bytes
+ .../0004_alter_blog_content.cpython-310.pyc        | Bin [31m0[m -> [32m627[m bytes
+ .../0005_alter_blog_content.cpython-310.pyc        | Bin [31m0[m -> [32m576[m bytes
+ blog/models.py                                     |   6 [32m+[m
+ blog/templates/blog/form.html                      |  83 [32m++++++++++[m[31m--[m
+ blog/templates/blog/list.html                      |  84 [32m++++++[m[31m------[m
+ blog/urls.py                                       |   2 [32m+[m
+ blog/views.py                                      |  82 [32m++++++++++[m[31m--[m
+ db.sqlite3                                         | Bin [31m155648[m -> [32m163840[m bytes
+ myproject/__pycache__/settings.cpython-310.pyc     | Bin [31m2802[m -> [32m2882[m bytes
+ myproject/__pycache__/urls.cpython-310.pyc         | Bin [31m1561[m -> [32m1561[m bytes
+ myproject/settings.py                              |  16 [32m++[m[31m-[m
+ static/js/article.js                               |   1 [32m+[m
+ static/js/blog.js                                  | 145 [32m+++++++++++++++++++++[m
+ templates/base.html                                |   3 [32m+[m
+ 30 files changed, 439 insertions(+), 95 deletions(-)

@@ -1,0 +1,16 @@
+# Python
+*.pyc
+__pycache__/
+
+# Django / local files
+db.sqlite3
+*.log
+
+# Virtual environment
+venv/
+env/
+
+# Media files (videos/images)
+media/media_files/*.mp4
+media/media_files/*.mov
+media/media_files/*.avi

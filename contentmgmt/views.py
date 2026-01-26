@@ -18,6 +18,16 @@ def media_dashboard(request, folder_id=None):
         'file_form': MediaFileForm()
     })
 
+def folder_view(request, folder_id):
+    folder = get_object_or_404(Folder, id=folder_id)
+    folders = Folder.objects.filter(parent=folder)
+    files = MediaFile.objects.filter(folder=folder)
+
+    return render(request, 'contentmgmt/dashboard.html', {
+        'folders': folders,
+        'files': files,
+        'current_folder': folder,
+    })
 @require_POST
 def create_folder(request):
     form = FolderForm(request.POST)
@@ -28,11 +38,26 @@ def create_folder(request):
 
 @require_POST
 def upload_file(request):
-    form = MediaFileForm(request.POST, request.FILES)
-    if form.is_valid():
-        media = form.save()
-        return JsonResponse({'success': True, 'file': {'id': media.id, 'name': media.name, 'url': media.file.url}})
-    return JsonResponse({'success': False, 'errors': form.errors})
+    folder_id = request.POST.get('folder')
+    folder = Folder.objects.filter(id=folder_id).first() if folder_id else None
+
+    if not request.FILES:
+        return JsonResponse({'success': False, 'errors': 'No files uploaded'})
+
+    uploaded_files = []
+    for f in request.FILES.getlist('file'):
+        media = MediaFile.objects.create(
+            file=f,
+            folder=folder,
+            name=f.name
+        )
+        uploaded_files.append({
+            'id': media.id,
+            'name': media.name,
+            'url': media.file.url
+        })
+
+    return JsonResponse({'success': True, 'files': uploaded_files})
 
 @require_POST
 def delete_item(request):
@@ -59,3 +84,27 @@ def toggle_status(request):
         media.save()
         status = media.is_active
     return JsonResponse({'success': True, 'status': status})
+
+def get_folder_path(folder):
+    """
+    Returns a list of parent folders from root to this folder
+    """
+    path = []
+    while folder:
+        path.insert(0, folder)  # insert at the beginning
+        folder = folder.parent
+    return path
+
+def folder_view(request, folder_id):
+    folder = get_object_or_404(Folder, id=folder_id)
+    folders = Folder.objects.filter(parent=folder)
+    files = MediaFile.objects.filter(folder=folder)
+
+    folder_path = get_folder_path(folder)
+
+    return render(request, 'contentmgmt/dashboard.html', {
+        'folders': folders,
+        'files': files,
+        'current_folder': folder,
+        'folder_path': folder_path,  # send path to template
+    })

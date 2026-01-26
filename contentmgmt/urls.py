@@ -5,6 +5,7 @@ app_name = 'contentmgmt'
 
 urlpatterns = [
     path('', views.media_dashboard, name='media_dashboard'),
+     path('media/folder/<int:folder_id>/', views.folder_view, name='folder_view'),
     path('folder/<int:folder_id>/', views.media_dashboard, name='media_dashboard_folder'),
     path('ajax/create-folder/', views.create_folder, name='create_folder'),
     path('ajax/upload-file/', views.upload_file, name='upload_file'),
