@@ -8,124 +8,14 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<style>
-.file-explorer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
-}
-
-/* Card style for folders and files */
-.explorer-card, .explorer-item {
-    background: #fff;
-    border-radius: 8px;
-    padding: 8px;
-    text-align: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,.08);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    position: relative;
-    height: 180px; /* uniform height */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Hover effects */
-.explorer-card:hover, .explorer-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-}
-
-/* Hover checkbox */
-.item-checkbox {
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    display: none;
-}
-
-.explorer-card:hover .item-checkbox,
-.explorer-item:hover .item-checkbox,
-.item-checkbox:checked {
-    display: block;
-}
-
-/* Icons */
-.explorer-card i, .explorer-item i {
-    font-size: 2.5rem;
-    margin-bottom: 4px;
-    color: #555;
-}
-
-/* File images/videos */
-.explorer-item img,
-.explorer-item video {
-    width: 100%;
-    height: 100px; /* uniform height */
-    object-fit: cover;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* Name text */
-.name {
-    font-size: 0.85rem;
-    margin-top: 4px;
-    word-break: break-word;
-    flex-shrink: 0;
-}
-
-/* Actions row */
-.actions {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 6px;
-    flex-wrap: wrap;
-}
-
-/* Buttons smaller */
-.actions i, .actions a.btn {
-    font-size: 0.9rem;
-    padding: 4px 6px;
-}
-
-/* Toggle button styling */
-.toggle-status {
-    color: gray;
-}
-
-.toggle-status.fa-toggle-on {
-    color: #28a745 !important; /* green when active */
-}
-
-/* Breadcrumb style */
-.breadcrumb {
-    background: #f8f9fa;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-}
-
-.breadcrumb a {
-    text-decoration: none;
-    color: #0d6efd;
-}
-
-.breadcrumb a:hover {
-    text-decoration: underline;
-}
-</style>
-
 <header class="d-flex justify-content-between align-items-center mb-2">
     <h3><i class="fas fa-folder-open me-2"></i>Media Manager</h3>
     <div>
         <button class="btn btn-outline-secondary btn-sm" id="create-folder-btn">
-            <i class="fas fa-folder-plus"></i>
+            <i class="fas fa-folder-plus"></i>  Add Folder
         </button>
         <button class="btn btn-primary btn-sm" id="upload-btn">
-            <i class="fas fa-upload"></i>
+            <i class="fas fa-upload"></i>  Add Files
         </button>
     </div>
 </header>
@@ -151,85 +41,153 @@
 </nav>
 
 <div class="bulk-actions mb-2 d-flex justify-content-between align-items-center">
-    <div>
-        <input type="checkbox" id="select-all"> <label for="select-all">Select All</label>
-        <button class="btn btn-success btn-sm" id="bulk-toggle-status">Toggle</button>
-        <button class="btn btn-danger btn-sm" id="bulk-delete">Delete</button>
-    </div>
-    <div>
-        <span class="badge bg-info me-1">{{ folders|length }} folders</span>
-        <span class="badge bg-primary">{{ files|length }} files</span>
-    </div>
-</div>
 
-<input type="file" id="file-upload" multiple hidden>
-
-<div class="file-explorer">
-    <!-- FOLDERS -->
-    {% for folder in folders %}
-    <div class="explorer-card explorer-item" data-id="{{ folder.id }}" data-type="folder">
-        <input type="checkbox" class="item-checkbox">
-        <div class="icon-wrapper">
-            <i class="fas fa-folder text-warning"></i>
+    <!-- Left actions -->
+    <div class="d-flex align-items-center gap-3">
+        <div class="form-check m-0">
+            <input class="form-check-input" type="checkbox" id="select-all">
+            <label class="form-check-label" for="select-all">
+                Select All
+            </label>
         </div>
-        <div class="name">{{ folder.name|truncatechars:18 }}</div>
-        <div class="actions">
-            <a class="btn btn-sm btn-outline-danger action-btn delete-item" data-type="folder" data-id="{{ folder.id }}">
-                <i class="fas fa-trash"></i>
-            </a>
-            <button class="btn btn-sm btn-outline-secondary action-btn toggle-status" data-type="folder" data-id="{{ folder.id }}">
-                <i class="fas fa-toggle-{{ folder.is_active|yesno:'on,off' }}"></i>
+
+        <div class="vr"></div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" id="bulk-toggle-status">
+                Toggle
+            </button>
+            <button class="btn btn-danger btn-sm" id="bulk-delete">
+                Delete
             </button>
         </div>
     </div>
+
+    <!-- Right counters -->
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-info">
+            {{ folders|length }} folders
+        </span>
+        <span class="badge bg-primary">
+            {{ files|length }} files
+        </span>
+    </div>
+
+</div>
+
+
+<input type="file" id="file-upload" multiple hidden>
+
+<div class="file-explorer pt-3" id="dropzone">
+
+    <!-- FOLDERS -->
+    {% for folder in folders %}
+        <div class="explorer-card explorer-item pt-5" data-id="{{ folder.id }}" data-type="folder">
+            <input type="checkbox" class="item-checkbox">
+            <div class="icon-wrapper">
+                <i class="fas fa-folder text-warning"></i>
+            </div>
+            <div class="name editable-name" 
+                 contenteditable="true" 
+                 data-id="{{ folder.id }}" 
+                 data-type="folder">
+                {{ folder.name|truncatechars:18 }}
+            </div>
+            <div class="actions">
+                <a class="btn btn-sm btn-outline-danger action-btn delete-item" 
+                   data-type="folder" 
+                   data-id="{{ folder.id }}">
+                    <i class="fas fa-trash"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-secondary action-btn toggle-status" 
+                        data-type="folder" 
+                        data-id="{{ folder.id }}">
+                    <i class="fas fa-toggle-{{ folder.is_active|yesno:'on,off' }}"></i>
+                </button>
+            </div>
+        </div>
     {% endfor %}
 
     <!-- FILES -->
     {% for file in files %}
-    <div class="explorer-card explorer-item" data-id="{{ file.id }}" data-type="file">
-        <input type="checkbox" class="item-checkbox">
-        <div class="icon-wrapper">
-            {% if file.file.url|is_image %}
-                <img src="{{ file.file.url }}">
-            {% elif file.file.url|is_video %}
-                <video src="{{ file.file.url }}" muted></video>
-            {% elif file.file.url|is_pdf %}
-                <i class="fas fa-file-pdf text-danger"></i>
-            {% else %}
-                <i class="fas fa-file text-secondary"></i>
-            {% endif %}
+        <div class="explorer-card explorer-item" data-id="{{ file.id }}" data-type="file">
+            <input type="checkbox" class="item-checkbox">
+            <div class="icon-wrapper">
+                {% if file.file.url|is_image %}
+                    <img src="{{ file.file.url }}">
+                {% elif file.file.url|is_video %}
+                    <video src="{{ file.file.url }}" muted></video>
+                {% elif file.file.url|is_pdf %}
+                    <i class="fas fa-file-pdf text-danger"></i>
+                {% else %}
+                    <i class="fas fa-file text-secondary"></i>
+                {% endif %}
+            </div>
+            <div class="name editable-name" 
+                 contenteditable="true" 
+                 data-id="{{ file.id }}" 
+                 data-type="file">
+                {{ file.name|truncatechars:18 }}
+            </div>
+            <div class="actions">
+                <a href="{{ file.file.url }}" download class="btn btn-sm btn-outline-info action-btn">
+                    <i class="fas fa-download"></i>
+                </a>
+                <a class="btn btn-sm btn-outline-danger action-btn delete-item" 
+                   data-type="file" 
+                   data-id="{{ file.id }}">
+                    <i class="fas fa-trash"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-secondary action-btn toggle-status" 
+                        data-type="file" 
+                        data-id="{{ file.id }}">
+                    <i class="fas fa-toggle-{{ file.is_active|yesno:'on,off' }}"></i>
+                </button>
+            </div>
         </div>
-        <div class="name">{{ file.name|truncatechars:18 }}</div>
-        <div class="actions">
-            <a href="{{ file.file.url }}" download class="btn btn-sm btn-outline-info action-btn">
-                <i class="fas fa-download"></i>
-            </a>
-            <a class="btn btn-sm btn-outline-danger action-btn delete-item" data-type="file" data-id="{{ file.id }}">
-                <i class="fas fa-trash"></i>
-            </a>
-            <button class="btn btn-sm btn-outline-secondary action-btn toggle-status" data-type="file" data-id="{{ file.id }}">
-                <i class="fas fa-toggle-{{ file.is_active|yesno:'on,off' }}"></i>
-            </button>
-        </div>
-    </div>
     {% endfor %}
+
 </div>
 
 <!-- Preview Modal -->
 <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content p-0">
-      <div class="modal-body p-0">
-        <img id="preview-image" class="img-fluid w-100 d-none" alt="Preview">
-        <video id="preview-video" class="w-100 d-none" controls autoplay></video>
-      </div>
-      <div class="modal-footer p-2">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-        <a href="#" id="download-preview" class="btn btn-primary btn-sm" download>Download</a>
-      </div>
+    <div class="modal-dialog modal-dialog-centered modal-md">
+
+        <div class="modal-content p-0">
+
+            <!-- File name (editable) -->
+            <div class="px-3 py-2 border-bottom">
+                <div
+                    id="preview-filename"
+                    class="fw-semibold editable-name"
+                    contenteditable="true"
+                    data-id=""
+                    data-type="file"
+                ></div>
+            </div>
+
+            <!-- Preview -->
+            <div class="modal-body p-2">
+                <div class="preview-container">
+                    <img id="preview-image" class="img-fluid d-none" alt="Preview">
+                    <video id="preview-video" class="d-none" controls autoplay></video>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer p-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <a href="#" id="download-preview" class="btn btn-primary btn-sm" download>
+                    Download
+                </a>
+            </div>
+
+        </div>
     </div>
-  </div>
 </div>
+
 
 <script>
 $(document).ready(function() {
@@ -245,6 +203,7 @@ $(document).ready(function() {
         for (let file of this.files) formData.append('file', file);
         formData.append('folder', "{{ current_folder.id|default:'' }}");
         formData.append('csrfmiddlewaretoken', getCsrfToken());
+
         $.ajax({
             url: "{% url 'contentmgmt:upload_file' %}",
             method: 'POST',
@@ -258,7 +217,8 @@ $(document).ready(function() {
     // Create folder
     $('#create-folder-btn').click(() => {
         const name = prompt("Folder name");
-        if(!name) return;
+        if (!name) return;
+
         $.post("{% url 'contentmgmt:create_folder' %}", {
             name: name,
             parent: "{{ current_folder.id|default:'' }}",
@@ -267,22 +227,31 @@ $(document).ready(function() {
     });
 
     // Double-click folder / file
-    $('.explorer-card, .explorer-item').on('dblclick', function(){
+    $('.explorer-card, .explorer-item').on('dblclick', function() {
         const type = $(this).data('type');
         const id = $(this).data('id');
+        const fileName = $(this).find('.editable-name').text().trim();
+        const fileId = $(this).data('id');
 
-        if(type === 'folder') {
+        $('#preview-filename')
+            .text(fileName)
+            .attr('data-id', fileId);
+
+
+        if (type === 'folder') {
             window.location.href = "{% url 'contentmgmt:folder_view' 0 %}".replace('/0/', '/' + id + '/');
-        } else if(type === 'file') {
+        } else if (type === 'file') {
             const $img = $(this).find('img');
             const $video = $(this).find('video');
-            if($img.length){
+
+            if ($img.length) {
                 $('#preview-image').attr('src', $img.attr('src')).removeClass('d-none');
                 $('#preview-video').addClass('d-none');
-            } else if($video.length){
+            } else if ($video.length) {
                 $('#preview-video').attr('src', $video.attr('src')).removeClass('d-none');
                 $('#preview-image').addClass('d-none');
             }
+
             $('#download-preview').attr('href', $(this).find('a').attr('href'));
             const myModal = new bootstrap.Modal(document.getElementById('previewModal'));
             myModal.show();
@@ -290,36 +259,39 @@ $(document).ready(function() {
     });
 
     // Delete without reload
-    $(document).on('click', '.delete-item', function(e){
+    $(document).on('click', '.delete-item', function(e) {
         e.stopPropagation();
-        if(!confirm("Delete this item?")) return;
+        if (!confirm("Delete this item?")) return;
+
         const $btn = $(this);
         const $card = $btn.closest('[data-id]');
         const id = $btn.data('id');
         const type = $btn.data('type');
+
         $.post("{% url 'contentmgmt:delete_item' %}", {
             id: id,
             type: type,
             csrfmiddlewaretoken: getCsrfToken()
         }).done(res => {
-            if(res.success){
-                $card.fadeOut(200, function(){ $(this).remove(); });
+            if (res.success) {
+                $card.fadeOut(200, function() { $(this).remove(); });
             }
         });
     });
 
     // Toggle status
-    $(document).on('click', '.toggle-status', function(e){
+    $(document).on('click', '.toggle-status', function(e) {
         e.stopPropagation();
         const $btn = $(this);
         const id = $btn.data('id');
         const type = $btn.data('type');
+
         $.post("{% url 'contentmgmt:toggle_status' %}", {
             id: id,
             type: type,
             csrfmiddlewaretoken: getCsrfToken()
         }).done(res => {
-            if(res.success){
+            if (res.success) {
                 const icon = res.status ? 'on' : 'off';
                 $btn.find('i').removeClass('fa-toggle-on fa-toggle-off').addClass('fa-toggle-' + icon);
             }
@@ -334,17 +306,19 @@ $(document).ready(function() {
     // Bulk toggle status
     $('#bulk-toggle-status').on('click', function() {
         const selected = $('.item-checkbox:checked');
-        if(!selected.length) return alert("Select items first.");
-        selected.each(function(){
+        if (!selected.length) return alert("Select items first.");
+
+        selected.each(function() {
             const $card = $(this).closest('[data-id]');
             const id = $card.data('id');
             const type = $card.data('type');
+
             $.post("{% url 'contentmgmt:toggle_status' %}", {
                 id: id,
                 type: type,
                 csrfmiddlewaretoken: getCsrfToken()
             }).done(res => {
-                if(res.success){
+                if (res.success) {
                     const $icon = $card.find('.toggle-status i');
                     const icon = res.status ? 'on' : 'off';
                     $icon.removeClass('fa-toggle-on fa-toggle-off').addClass('fa-toggle-' + icon);
@@ -356,20 +330,153 @@ $(document).ready(function() {
     // Bulk delete
     $('#bulk-delete').on('click', function() {
         const selected = $('.item-checkbox:checked');
-        if(!selected.length) return alert("Select items first.");
-        if(!confirm("Delete selected items?")) return;
-        selected.each(function(){
+        if (!selected.length) return alert("Select items first.");
+        if (!confirm("Delete selected items?")) return;
+
+        selected.each(function() {
             const $card = $(this).closest('[data-id]');
             const id = $card.data('id');
             const type = $card.data('type');
+
             $.post("{% url 'contentmgmt:delete_item' %}", {
                 id: id,
                 type: type,
                 csrfmiddlewaretoken: getCsrfToken()
-            }).done(res => { if(res.success) $card.fadeOut(200, function(){ $(this).remove(); }); });
+            }).done(res => { 
+                if (res.success) $card.fadeOut(200, function() { $(this).remove(); }); 
+            });
         });
     });
 
 });
+
+// Inline rename
+$(document).ready(function() {
+
+    function getCsrfToken() {
+        return document.cookie.match(/csrftoken=([^;]+)/)?.[1];
+    }
+
+    $(document).on('blur keydown', '.editable-name', function(e) {
+        const elem = $(this);
+        const id = elem.data('id');
+        const type = elem.data('type');
+        const newName = elem.text().trim();
+
+        if (e.type === 'blur' || (e.type === 'keydown' && e.key === 'Enter')) {
+            if (e.type === 'keydown') e.preventDefault();
+            elem.blur();
+
+            $.post("{% url 'contentmgmt:rename_item' %}", {
+                id: id,
+                type: type,
+                name: newName,
+                csrfmiddlewaretoken: getCsrfToken()
+            });
+        }
+    });
+
+});
+
+
+
+//drag and drop upload
+$(document).ready(function() {
+
+    // ================================
+    // Helper: Get CSRF token from cookie
+    // ================================
+    function getCsrfToken() {
+        const match = document.cookie.match(/csrftoken=([^;]+)/);
+        return match ? match[1] : '';
+    }
+
+    // ================================
+    // Dropzone element
+    // ================================
+    const $dropzone = $('#dropzone');
+
+    // ================================
+    // Prevent dragging existing explorer items
+    // ================================
+    $('.explorer-item').attr('draggable', false);
+
+    // ================================
+    // Highlight dropzone on drag over
+    // ================================
+    $dropzone.on('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const dt = e.originalEvent.dataTransfer;
+
+        // Only highlight if actual files are being dragged
+        if(dt && dt.types && dt.types.includes('Files')) {
+            $(this).addClass('drag-over');
+        }
+    });
+
+    $dropzone.on('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag-over');
+    });
+
+    // ================================
+    // Handle dropped files
+    // ================================
+    $dropzone.on('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag-over');
+
+        const dt = e.originalEvent.dataTransfer;
+
+        // Ignore internal DOM drags (only accept OS files)
+        if(!dt.files || dt.files.length === 0) return;
+
+        const files = dt.files;
+        const formData = new FormData();
+
+        // Append each file
+        for(let i=0; i<files.length; i++){
+            formData.append('file', files[i]);
+        }
+
+        // Optional: current folder ID
+        formData.append('folder', "{{ current_folder.id|default:'' }}");
+        formData.append('csrfmiddlewaretoken', getCsrfToken());
+
+        // ================================
+        // AJAX upload
+        // ================================
+        $.ajax({
+            url: "{% url 'contentmgmt:upload_file' %}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res){
+                if(res.success){
+                    // Option 1: reload page
+                    location.reload();
+
+                    // Option 2: dynamically append files without reload
+                    // appendNewFiles(res.files);
+                } else {
+                    alert('Upload failed: ' + (res.error || 'Unknown error'));
+                }
+            },
+            error: function(){
+                alert('Upload request failed');
+            }
+        });
+
+    });
+
+});
+
+
 </script>
+
 {% endblock %}

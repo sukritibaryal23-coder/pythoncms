@@ -108,3 +108,27 @@ def folder_view(request, folder_id):
         'current_folder': folder,
         'folder_path': folder_path,  # send path to template
     })
+
+@require_POST
+def rename_item(request):
+    item_id = request.POST.get('id')
+    item_type = request.POST.get('type')
+    new_name = request.POST.get('name')
+
+    if not new_name:
+        return JsonResponse({'success': False})
+
+    if item_type == 'folder':
+        obj = Folder.objects.get(id=item_id)
+        obj.name = new_name
+        obj.save()
+
+    elif item_type == 'file':
+        obj = MediaFile.objects.get(id=item_id)
+        obj.name = new_name
+        obj.save()
+
+    else:
+        return JsonResponse({'success': False})
+
+    return JsonResponse({'success': True})

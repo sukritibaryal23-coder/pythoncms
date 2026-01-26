@@ -11,4 +11,5 @@ urlpatterns = [
     path('ajax/upload-file/', views.upload_file, name='upload_file'),
     path('ajax/delete-item/', views.delete_item, name='delete_item'),
     path('ajax/toggle-status/', views.toggle_status, name='toggle_status'),
+    path('rename-item/', views.rename_item, name='rename_item'),
 ]
