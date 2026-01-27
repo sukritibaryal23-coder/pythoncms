@@ -39,6 +39,21 @@
         {% endif %}
     </ol>
 </nav>
+<div class="mb-2 d-flex justify-content-end">
+    <div class="input-group input-group-sm" style="max-width: 300px;">
+        <input
+            type="text"
+            id="media-search"
+            class="form-control"
+            placeholder="Search folders and files..."
+            aria-label="Search"
+        >
+        <button class="btn btn-primary" type="button">
+            <i class="bi bi-search"></i>
+        </button>
+    </div>
+</div>
+
 
 <div class="bulk-actions mb-2 d-flex justify-content-between align-items-center">
 
@@ -55,7 +70,7 @@
 
         <div class="d-flex gap-2">
             <button class="btn btn-success btn-sm" id="bulk-toggle-status">
-                Toggle
+                Status
             </button>
             <button class="btn btn-danger btn-sm" id="bulk-delete">
                 Delete
@@ -377,106 +392,126 @@ $(document).ready(function() {
     });
 
 });
+</script>
 
 
+<script>
+$(document).ready(function () {
 
-//drag and drop upload
-$(document).ready(function() {
-
-    // ================================
-    // Helper: Get CSRF token from cookie
-    // ================================
     function getCsrfToken() {
         const match = document.cookie.match(/csrftoken=([^;]+)/);
         return match ? match[1] : '';
     }
 
-    // ================================
-    // Dropzone element
-    // ================================
     const $dropzone = $('#dropzone');
 
-    // ================================
-    // Prevent dragging existing explorer items
-    // ================================
-    $('.explorer-item').attr('draggable', false);
-
-    // ================================
-    // Highlight dropzone on drag over
-    // ================================
-    $dropzone.on('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const dt = e.originalEvent.dataTransfer;
-
-        // Only highlight if actual files are being dragged
-        if(dt && dt.types && dt.types.includes('Files')) {
-            $(this).addClass('drag-over');
+    // =====================================
+    // 1. HARD BLOCK ANY INTERNAL DRAG START
+    // =====================================
+    $(document).on('dragstart', function (e) {
+        // If drag starts inside dropzone → BLOCK
+        if ($(e.target).closest('#dropzone').length) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
         }
     });
 
-    $dropzone.on('dragleave', function(e) {
+    // =====================================
+    // 2. HARD BLOCK NON-FILE DRAGS ENTERING
+    // =====================================
+    $dropzone.on('dragenter dragover', function (e) {
+        const dt = e.originalEvent.dataTransfer;
+
+        // If NOT OS files → KILL
+        if (!dt || !dt.types || !dt.types.includes('Files')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        // OS files only
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('drag-over');
+    });
+
+    $dropzone.on('dragleave', function (e) {
         e.preventDefault();
         e.stopPropagation();
         $(this).removeClass('drag-over');
     });
 
-    // ================================
-    // Handle dropped files
-    // ================================
-    $dropzone.on('drop', function(e) {
+    // =====================================
+    // 3. DROP HANDLER (FILES ONLY)
+    // =====================================
+    $dropzone.on('drop', function (e) {
+        const dt = e.originalEvent.dataTransfer;
+
+        // Kill ALL non-file drops
+        if (!dt || !dt.files || dt.files.length === 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
         e.preventDefault();
         e.stopPropagation();
         $(this).removeClass('drag-over');
 
-        const dt = e.originalEvent.dataTransfer;
-
-        // Ignore internal DOM drags (only accept OS files)
-        if(!dt.files || dt.files.length === 0) return;
-
-        const files = dt.files;
         const formData = new FormData();
 
-        // Append each file
-        for(let i=0; i<files.length; i++){
-            formData.append('file', files[i]);
+        for (let i = 0; i < dt.files.length; i++) {
+            formData.append('file', dt.files[i]);
         }
 
-        // Optional: current folder ID
         formData.append('folder', "{{ current_folder.id|default:'' }}");
         formData.append('csrfmiddlewaretoken', getCsrfToken());
 
-        // ================================
-        // AJAX upload
-        // ================================
         $.ajax({
             url: "{% url 'contentmgmt:upload_file' %}",
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            success: function(res){
-                if(res.success){
-                    // Option 1: reload page
+            success: function (res) {
+                if (res.success) {
                     location.reload();
-
-                    // Option 2: dynamically append files without reload
-                    // appendNewFiles(res.files);
                 } else {
-                    alert('Upload failed: ' + (res.error || 'Unknown error'));
+                    alert(res.error || 'Upload failed');
                 }
             },
-            error: function(){
+            error: function () {
                 alert('Upload request failed');
             }
         });
+    });
 
+    // =====================================
+    // 4. BLOCK PASTE (GLOBAL)
+    // =====================================
+    $(document).on('paste copy cut', function (e) {
+        if ($(e.target).closest('#dropzone').length) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
     });
 
 });
+// Media search/filter
+$('#media-search').on('input', function() {
+    const searchVal = $(this).val().toLowerCase().trim();
 
+    $('.explorer-card, .explorer-item').each(function() {
+        const name = $(this).find('.editable-name').text().toLowerCase();
+        $(this).toggle(name.includes(searchVal));
+    });
+});
 
 </script>
+
+
+
 
 {% endblock %}

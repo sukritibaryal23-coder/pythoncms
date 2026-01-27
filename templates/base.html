@@ -80,6 +80,13 @@
                     Blog
                 </a>
             </li>
+             <li class="nav-item">
+                 <a class="nav-link {% if request.resolver_match.url_name == 'media_dashboard' %}active{% endif %}" 
+                href="{% url 'contentmgmt:media_dashboard' %}">
+                    <i class="bi bi-collection-play me-2"></i>
+                    Media Mgmt
+                </a>
+            </li>
 
             <!-- <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'recycle_bin' %}active{% endif %}" 

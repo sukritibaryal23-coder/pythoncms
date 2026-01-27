@@ -9,8 +9,8 @@ $(document).ready(function() {
     $('#file-upload').on('change', function () {
         const formData = new FormData();
         for (let file of this.files) formData.append('file', file);
-        formData.append('folder', "{{ current_folder.id|default:'' }}");
-        formData.append('csrfmiddlewaretoken', getCsrfToken());
+         formData.append('folder', window.CONTENTMGMT.folderId);
+         formData.append('csrfmiddlewaretoken', getCsrfToken());
 
         $.ajax({
             url: "{% url 'contentmgmt:upload_file' %}",
@@ -47,7 +47,8 @@ $(document).ready(function() {
 
 
         if (type === 'folder') {
-            window.location.href = "{% url 'contentmgmt:folder_view' 0 %}".replace('/0/', '/' + id + '/');
+            const url = window.CONTENTMGMT.folderViewUrl.replace('/0/', '/' + id + '/');
+            window.location.href = url;
         } else if (type === 'file') {
             const $img = $(this).find('img');
             const $video = $(this).find('video');
@@ -181,6 +182,110 @@ $(document).ready(function() {
                 name: newName,
                 csrfmiddlewaretoken: getCsrfToken()
             });
+        }
+    });
+
+});
+
+$(document).ready(function () {
+
+    function getCsrfToken() {
+        const match = document.cookie.match(/csrftoken=([^;]+)/);
+        return match ? match[1] : '';
+    }
+
+    const $dropzone = $('#dropzone');
+
+    // =====================================
+    // 1. HARD BLOCK ANY INTERNAL DRAG START
+    // =====================================
+    $(document).on('dragstart', function (e) {
+        // If drag starts inside dropzone → BLOCK
+        if ($(e.target).closest('#dropzone').length) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    });
+
+    // =====================================
+    // 2. HARD BLOCK NON-FILE DRAGS ENTERING
+    // =====================================
+    $dropzone.on('dragenter dragover', function (e) {
+        const dt = e.originalEvent.dataTransfer;
+
+        // If NOT OS files → KILL
+        if (!dt || !dt.types || !dt.types.includes('Files')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        // OS files only
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('drag-over');
+    });
+
+    $dropzone.on('dragleave', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag-over');
+    });
+
+    // =====================================
+    // 3. DROP HANDLER (FILES ONLY)
+    // =====================================
+    $dropzone.on('drop', function (e) {
+        const dt = e.originalEvent.dataTransfer;
+
+        // Kill ALL non-file drops
+        if (!dt || !dt.files || dt.files.length === 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag-over');
+
+        const formData = new FormData();
+
+        for (let i = 0; i < dt.files.length; i++) {
+            formData.append('file', dt.files[i]);
+        }
+
+        formData.append('folder', "{{ current_folder.id|default:'' }}");
+        formData.append('csrfmiddlewaretoken', getCsrfToken());
+
+        $.ajax({
+            url: "{% url 'contentmgmt:upload_file' %}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    alert(res.error || 'Upload failed');
+                }
+            },
+            error: function () {
+                alert('Upload request failed');
+            }
+        });
+    });
+
+    // =====================================
+    // 4. BLOCK PASTE (GLOBAL)
+    // =====================================
+    $(document).on('paste copy cut', function (e) {
+        if ($(e.target).closest('#dropzone').length) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
         }
     });
 
